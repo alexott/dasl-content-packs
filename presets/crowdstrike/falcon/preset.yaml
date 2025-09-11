@@ -54,8 +54,6 @@ silver:
           expr: coalesce(data:event_simpleName::string, data:EventType::string, data:event_type::string)
         - name: metadata.event_code
           expr: coalesce(data:event_simpleName::string, data:EventType::string, data:event_type::string)
-        - name: metadata.profiles
-          expr: "array(data:config_state_hash::string)"
       utils:
         unreferencedColumns:
           preserve: true
@@ -194,34 +192,32 @@ gold:
         expr: "concat('File System Activity: ', activity_name)"
       - name: time
         from: time
-      - name: start_time
-        from: time
       - name: metadata
         from: metadata
       - name: actor.user.name
         expr: data:UserName::string
       - name: actor.user.uid
         expr: data:UID::string
-      - name: actor.process.tid
-        expr: try_cast(context_thread_id as int)
+      # - name: actor.process.tid
+      #   expr: try_cast(context_thread_id as int)
       - name: actor.process.pid
         expr: try_cast(context_process_id as int)
       - name: file.path
         expr: data:TargetFileName::string
       - name: file.name
-        expr: "regexp_extract(data:TargetFileName::string, '^.*[/\\\\\\\\]([^/\\\\\\\\]+)$', 1)"
-      - name: file.uid
-        expr: data:FileIdentifier::string
-      - name: file.attributes
-        expr: data:UnixMode::int
-      - name: file.hashes
-        expr: |
-          CASE
-            WHEN data:SHA256HashData::string IS NOT NULL THEN
-              array(named_struct('algorithm_id', cast('3' as int), 'algorithm', 'SHA-256', 'value', data:SHA256HashData::string))
-          END
-      - name: file.size
-        expr: data:Size::long
+        expr: "regexp_extract(data:TargetFileName::string, '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)"
+      # - name: file.uid
+      #   expr: data:FileIdentifier::string
+      # - name: file.attributes
+      #   expr: data:UnixMode::int
+      # - name: file.hashes
+      #   expr: |
+      #     CASE
+      #       WHEN data:SHA256HashData::string IS NOT NULL THEN
+      #         array(named_struct('algorithm_id', cast('3' as int), 'algorithm', 'SHA-256', 'value', data:SHA256HashData::string))
+      #     END
+      # - name: file.size
+      #   expr: data:Size::long
   - name: authentication
     input: crowdstrike
     filter: |
@@ -263,12 +259,8 @@ gold:
         expr: "concat('Authentication: ', activity_name)"
       - name: time
         from: time
-      - name: start_time
-        from: time
       - name: metadata
         from: metadata
-      - name: actor.user.domain
-        expr: data:LogonDomain::string
       - name: actor.user.name
         expr: data:UserName::string
       - name: actor.user.type_id
@@ -345,8 +337,6 @@ gold:
         expr: "concat('Kernel Extension Activity: ', activity_name)"
       - name: time
         from: time
-      - name: start_time
-        from: time
       - name: metadata
         from: metadata
       - name: actor.process.tid
@@ -356,7 +346,7 @@ gold:
       - name: driver.file.path
         expr: coalesce(data:BundleID::string, data:ImageFileName::string)
       - name: driver.file.name
-        expr: "coalesce(data:BundleID::string, regexp_extract(data:ImageFileName::string, '^.*[/\\\\\\\\]([^/\\\\\\\\]+)$', 1))"
+        expr: "coalesce(data:BundleID::string, regexp_extract(data:ImageFileName::string, '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1))"
   - name: dns_activity
     input: crowdstrike
     filter: |
@@ -397,8 +387,6 @@ gold:
       - name: type_name
         expr: "concat('DNS Activity: ', activity_name)"
       - name: time
-        from: time
-      - name: start_time
         from: time
       - name: metadata
         from: metadata
