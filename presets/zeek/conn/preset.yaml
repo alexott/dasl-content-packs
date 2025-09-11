@@ -1,0 +1,103 @@
+name: internal_zeek_conn
+description: "A preset for consuming Zeek Conn logs"
+title: "Zeek Conn"
+iconURL: "https://docs.zeek.org/en/master/_images/zeek-logo-text.png"
+author: "Alex Ott <alexey.ott@databricks.com>"
+autoloader:
+  format: jsonl
+  cloudFiles:
+    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, status_code int"
+bronze:
+  preTransform:
+    -
+      - "*"
+      - cast(ts as timestamp) as time
+silver:
+  transform:
+    - name: zeek_conn
+      fields:
+        - name: id_origin_host
+          from: "`id.orig_h`"
+        - name: id_origin_port
+          from: "`id.orig_p`"
+        - name: id_response_host
+          from: "`id.resp_h`"
+        - name: id_response_port
+          from: "`id.resp_p`"
+      utils:
+        unreferencedColumns:
+          preserve: true
+          omitColumns:
+            - "`id.resp_h`"
+            - "`id.orig_h`"
+            - ts
+            - "`id.resp_p`"
+            - "`id.orig_p`"
+gold:
+  - name: network_activity
+    input: zeek_conn
+    fields:
+      - name: activity_id
+        expr: CAST('6' AS INT)  # convert from conn_state?
+      - name: activity_name
+        literal: Traffic
+      - name: category_uid
+        expr: CAST('4' AS INT)
+      - name: category_name
+        literal: Network Activity
+      - name: class_uid
+        expr: CAST('4001' AS INT)
+      - name: class_name
+        literal: Network Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: CAST('400106' AS BIGINT)
+      - name: type_name
+        literal: "Network Activity: Traffic"
+      - name: time
+        from: time
+      - name: start_time
+        from: time
+      - name: metadata.product.name
+        literal: Zeek Conn
+      - name: metadata.product.vendor_name
+        literal: Zeek
+      - name: metadata.uid
+        from: uid
+      - name: src_endpoint.ip
+        from: id_origin_host
+      - name: dst_endpoint.ip
+        from: id_response_host
+      - name: src_endpoint.port
+        from: id_origin_port
+      - name: dst_endpoint.port
+        from: id_response_port
+      - name: connection_info.uid
+        from: uid
+      - name: connection_info.protocol_name
+        expr: lower(proto)
+      - name: connection_info.flag_history
+        from: history
+      - name: connection_info.protocol_num # TODO: expand it...
+        expr: CAST((CASE WHEN LOWER(proto) = 'icmp' THEN 1 WHEN LOWER(proto) = 'tcp' THEN 6 WHEN LOWER(proto) = 'udp' THEN 17 ELSE 255 END) AS INT)
+      - name: traffic.bytes_in
+        from: orig_bytes
+      - name: traffic.bytes_out
+        from: resp_bytes
+      - name: traffic.bytes
+        expr: resp_bytes + orig_bytes
+      - name: traffic.bytes_missed
+        from: missed_bytes
+      - name: traffic.packets_in
+        from: orig_pkts
+      - name: traffic.packets_out
+        from: resp_pkts
+      - name: traffic.packets
+        expr: orig_pkts + resp_pkts
+      # - name: duration
+      #   expr: CAST(duration AS BIGINT)
+      # - name: 
+      #   from: 

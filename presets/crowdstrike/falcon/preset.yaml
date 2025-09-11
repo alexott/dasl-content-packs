@@ -1,0 +1,433 @@
+name: internal_crowdstrike_falcon
+author: "Alex Ott <alexey.ott@databricks.com>"
+description: "Processing of Crowdstrike JSON logs"
+title: "Crowdstrike Falcon"
+#iconURL: "https://raw.githubusercontent.com/antimatterhq/dasl-content-packs/refs/heads/main/presets/zeek/http/icon.png"
+iconURL: "https://www.dropbox.com/scl/fi/ngmjyy8g6fuia5yyu5bqz/falcon.png?rlkey=oijjglg5dtoa0c5hlqacdl5xw&dl=0"
+autoloader:
+  format: jsonl
+bronze:
+  loadAsSingleVariant: true
+  preTransform:
+    -
+      - "*"
+      - coalesce(cast(try_variant_get(data, '$.ContextTimeStamp', 'double') as timestamp), try_variant_get(data, '$.timestamp', 'timestamp'), cast((try_variant_get(data, '$.timestamp', 'long') / 1000.0) as timestamp), cast((try_variant_get(data, '$.UTCTimestamp', 'long') / 1000.0) as timestamp), current_timestamp()) as time
+silver:
+  transform:
+    - name: crowdstrike
+      fields:
+        - name: id
+          expr: data:id::string
+        - name: cid
+          expr: data:cid::string
+        - name: aid
+          expr: data:aid::string
+        - name: aip
+          expr: data:aip::string
+        - name: event_platform
+          expr: data:event_platform::string
+        - name: name
+          expr: data:name::string
+        - name: effective_transmission_class
+          expr: data:EffectiveTransmissionClass::int
+        - name: entitlements
+          expr: data:Entitlements::int
+        - name: config_build
+          expr: data:ConfigBuild::string
+        - name: config_state_hash
+          expr: data:ConfigStateHash::string
+        - name: context_process_id
+          expr: data:ContextProcessId::long
+        - name: context_thread_id
+          expr: data:ContextThreadId::long
+        - name: metadata.product.vendor_name
+          literal: Crowdstrike
+        - name: metadata.product.name
+          literal: Crowdstrike Falcon
+        - name: metadata.product.version
+          expr: data:ConfigBuild::string
+        - name: metadata.tenant_uid
+          expr: data:cid::string
+        - name: metadata.uid
+          expr: data:id::string
+        - name: event_name
+          expr: coalesce(data:event_simpleName::string, data:EventType::string, data:event_type::string)
+        - name: metadata.event_code
+          expr: coalesce(data:event_simpleName::string, data:EventType::string, data:event_type::string)
+        - name: metadata.profiles
+          expr: "array(data:config_state_hash::string)"
+      utils:
+        unreferencedColumns:
+          preserve: true
+gold:
+  - name: network_activity
+    input: crowdstrike
+    filter: |
+      event_name IN (
+        'NetworkConnectIP4', 'NetworkConnectIP6', 'NetworkCloseIP4', 'NetworkCloseIP6',
+        'NetworkListenIP4', 'NetworkListenIP6', 'NetworkReceiveAcceptIP4',
+        'NetworkReceiveAcceptIP6', 'RawBindIP4', 'RawBindIP6', 'PromiscuousBindIP4',
+        'PromiscuousBindIP6', 'NetworkConnectIP4Blocked', 'NetworkConnectIP6Blocked'
+      )
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN event_name IN ('NetworkConnectIP4', 'NetworkConnectIP6', 'NetworkConnectIP4Blocked', 'NetworkConnectIP6Blocked') THEN '1'
+              WHEN event_name IN ('NetworkCloseIP4', 'NetworkCloseIP6') THEN '2'
+              WHEN event_name IN ('NetworkListenIP4', 'NetworkListenIP6', 'RawBindIP4', 'RawBindIP6') THEN '7'
+              ELSE '0'
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = '1' THEN 'Open'
+            WHEN activity_id = '2' THEN 'Close'
+            WHEN activity_id = '7' THEN 'Listen'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('4' AS INT)
+      - name: category_name
+        literal: Network Activity
+      - name: class_uid
+        expr: CAST('4001' AS INT)
+      - name: class_name
+        literal: Network Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('Network Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: metadata
+        from: metadata
+      - name: src_endpoint.ip
+        expr: coalesce(data:LocalAddressIP4::string, data:LocalAddressIP6::string)
+      - name: dst_endpoint.ip
+        expr: coalesce(data:RemoteAddressIP4::string, data:RemoteAddressIP6::string)
+      - name: src_endpoint.port
+        expr: data:LocalPort::int
+      - name: dst_endpoint.port
+        expr: data:RemotePort::int
+      - name: connection_info.protocol_num
+        expr: data:Protocol::int
+      - name: connection_info.direction_id
+        expr: |
+          CASE
+            WHEN data:ConnectionDirection::int = 0 THEN 1
+            WHEN data:ConnectionDirection::int = 1 THEN 2
+            WHEN data:ConnectionDirection::int = 2 THEN 99
+            WHEN data:ConnectionDirection::int = 3 THEN 99
+            ELSE 0
+          END
+      - name: connection_info.direction
+        expr: |
+          CASE
+            WHEN data:ConnectionDirection::int = 0 THEN 'Inbound'
+            WHEN data:ConnectionDirection::int = 1 THEN 'Outbound'
+            WHEN data:ConnectionDirection::int = 2 THEN 'Neither'
+            WHEN data:ConnectionDirection::int = 3 THEN 'Both'
+            ELSE 'Unknown'
+          END
+      - name: connection_info.protocol_ver_id
+        expr: |
+          CAST(
+            CASE
+              WHEN endswith(event_name, 'IP4') THEN '4'
+              WHEN endswith(event_name, 'IP6') THEN '6'
+              ELSE '0'
+            END
+          AS INT)
+  - name: file_activity
+    input: crowdstrike
+    filter: |
+      event_name IN (
+        'FileCreateInfo', 'FileDeleteInfo', 'FileOpenInfo', 'FileRenameInfo',
+        'PackedExecutableWritten', 'NewExecutableWritten', 'NewExecutableRenamed',
+        'NewScriptWritten', 'ExecutableDeleted', 'CriticalFileAccessed', 'CriticalFileModified'
+      ) OR endswith(event_name, 'FileWritten')
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN event_name IN ('FileCreateInfo') THEN '1'
+              WHEN event_name IN ('FileOpenInfo', 'CriticalFileAccessed') THEN '14'
+              WHEN event_name IN ('FileRenameInfo', 'NewExecutableRenamed') THEN '5'
+              WHEN event_name IN ('FileDeleteInfo', 'ExecutableDeleted') THEN '4'
+              WHEN endswith(event_name, 'Written') or event_name IN ('CriticalFileModified') THEN '3'
+              ELSE '0'
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = '1' THEN 'Create'
+            WHEN activity_id = '4' THEN 'Delete'
+            WHEN activity_id = '5' THEN 'Rename'
+            WHEN activity_id = '3' THEN 'Update'
+            WHEN activity_id = '14' THEN 'Open'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('1' AS INT)
+      - name: category_name
+        literal: System Activity
+      - name: class_uid
+        expr: CAST('1001' AS INT)
+      - name: class_name
+        literal: File System Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('File System Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: start_time
+        from: time
+      - name: metadata
+        from: metadata
+      - name: actor.user.name
+        expr: data:UserName::string
+      - name: actor.user.uid
+        expr: data:UID::string
+      - name: actor.process.tid
+        expr: try_cast(context_thread_id as int)
+      - name: actor.process.pid
+        expr: try_cast(context_process_id as int)
+      - name: file.path
+        expr: data:TargetFileName::string
+      - name: file.name
+        expr: "regexp_extract(data:TargetFileName::string, '^.*[/\\\\\\\\]([^/\\\\\\\\]+)$', 1)"
+      - name: file.uid
+        expr: data:FileIdentifier::string
+      - name: file.attributes
+        expr: data:UnixMode::int
+      - name: file.hashes
+        expr: |
+          CASE
+            WHEN data:SHA256HashData::string IS NOT NULL THEN
+              array(named_struct('algorithm_id', cast('3' as int), 'algorithm', 'SHA-256', 'value', data:SHA256HashData::string))
+          END
+      - name: file.size
+        expr: data:Size::long
+  - name: authentication
+    input: crowdstrike
+    filter: |
+      event_name IN (
+        'UserLogoff', 'UserLogon', 'UserLogonFailed', 'UserLogonFailed2'
+      )
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN startswith(event_name, 'UserLogon') THEN '1'
+              WHEN event_name IN ('UserLogoff') THEN '2'
+              ELSE '0'
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = '1' THEN 'Logon'
+            WHEN activity_id = '2' THEN 'Logoff'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('3' AS INT)
+      - name: category_name
+        literal: Identity & Access Management
+      - name: class_uid
+        expr: CAST('3002' AS INT)
+      - name: class_name
+        literal: Authentication
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('Authentication: ', activity_name)"
+      - name: time
+        from: time
+      - name: start_time
+        from: time
+      - name: metadata
+        from: metadata
+      - name: actor.user.domain
+        expr: data:LogonDomain::string
+      - name: actor.user.name
+        expr: data:UserName::string
+      - name: actor.user.type_id
+        expr: CASE WHEN data:UserIsAdmin::string = '1' THEN 2 ELSE 0 END
+      - name: actor.user.uid
+        expr: data:UserSid::string
+      - name: status_id
+        expr: |
+          CASE
+            WHEN event_name IN ('UserLogoff', 'UserLogon') THEN 1
+            WHEN event_name IN ('UserLogonFailed', 'UserLogonFailed2') THEN 2
+            ELSE 0
+          END
+      - name: logon_type_id
+        expr: coalesce(data:LogonType::int, cast('0' as int))
+      - name: logon_type
+        expr: |
+          CASE
+            WHEN logon_type_id = '1' THEN '2'
+            WHEN logon_type_id = '2' THEN 'Interactive'
+            WHEN logon_type_id = '3' THEN 'Network'
+            WHEN logon_type_id = '4' THEN 'Batch'
+            WHEN logon_type_id = '5' THEN 'OS Service'
+            WHEN logon_type_id = '7' THEN 'Unlock'
+            WHEN logon_type_id = '8' THEN 'Network Cleartext'
+            WHEN logon_type_id = '9' THEN 'New Credentials'
+            WHEN logon_type_id = '10' THEN 'Remote Interactive'
+            WHEN logon_type_id = '11' THEN 'Cached Interactive'
+            WHEN logon_type_id = '12' THEN 'Cached Remote Interactive'
+            WHEN logon_type_id = '13' THEN 'Cached Unlock'
+            WHEN logon_type_id = '99' THEN 'Other'
+            ELSE 'Unknown'
+          END
+      - name: is_remote
+        expr: data:RemoteAccount::string = '1'
+  - name: kernel_extension_activity
+    input: crowdstrike
+    filter: |
+      event_name IN (
+        'KextLoad', 'KextUnload', 'KernelModeLoadImage'
+      )
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN event_name IN ('KextLoad', 'KernelModeLoadImage') THEN '1'
+              WHEN event_name IN ('KextUnload') THEN '2'
+              ELSE '0'
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = '1' THEN 'Load'
+            WHEN activity_id = '2' THEN 'Unload'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('1' AS INT)
+      - name: category_name
+        literal: System Activity
+      - name: class_uid
+        expr: CAST('1003' AS INT)
+      - name: class_name
+        literal: Kernel Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('Kernel Extension Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: start_time
+        from: time
+      - name: metadata
+        from: metadata
+      - name: actor.process.tid
+        expr: try_cast(context_thread_id as int)
+      - name: actor.process.pid
+        expr: try_cast(context_process_id as int)
+      - name: driver.file.path
+        expr: coalesce(data:BundleID::string, data:ImageFileName::string)
+      - name: driver.file.name
+        expr: "coalesce(data:BundleID::string, regexp_extract(data:ImageFileName::string, '^.*[/\\\\\\\\]([^/\\\\\\\\]+)$', 1))"
+  - name: dns_activity
+    input: crowdstrike
+    filter: |
+      event_name IN (
+        'DnsRequest', 'SuspiciousDnsRequest', 'DnsRequestBlocked'
+      )
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN event_name IN ('DnsRequest') THEN '2'
+              WHEN event_name IN ('SuspiciousDnsRequest', 'DnsRequestBlocked') THEN '1'
+              ELSE '0'
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = 1 THEN 'Query'
+            WHEN activity_id = 2 THEN 'Response'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('4' AS INT)
+      - name: category_name
+        literal: Network Activity
+      - name: class_uid
+        expr: CAST('4003' AS INT)
+      - name: class_name
+        literal: DNS Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('DNS Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: start_time
+        from: time
+      - name: metadata
+        from: metadata
+      - name: query.hostname
+        expr: data:DomainName::string
+      - name: query.class
+        literal: IN
+      - name: query.type
+        expr: |
+          CASE
+            WHEN data:RequestType::int = 1 THEN 'A'
+            WHEN data:RequestType::int = 2 THEN 'NS'
+            WHEN data:RequestType::int = 5 THEN 'CNAME'
+            WHEN data:RequestType::int = 12 THEN 'PTR'
+            WHEN data:RequestType::int = 15 THEN 'MX'
+            WHEN data:RequestType::int = 16 THEN 'TXT'
+            WHEN data:RequestType::int = 28 THEN 'AAAA'
+            WHEN data:RequestType::int = 255 THEN 'ANY'
+            ELSE 'UNKNOWN'
+          END
+      - name: dst_endpoint.ip
+        expr: data:RespondingDnsServer::string
+      - name: answers
+        expr: |
+          concat(
+            transform(array_remove(split(coalesce(data:IP4Records::string, ''), ';'), ''), x -> named_struct('class', 'IN', 'type', 'A', 'rdata', x)),
+            transform(array_remove(split(coalesce(data:CNAMERecords::string, ''), ';'), ''), x -> named_struct('class', 'IN', 'type', 'CNAME', 'rdata', x)),
+            transform(array_remove(split(coalesce(data:IP6Records::string, ''), ';'), ''), x -> named_struct('class', 'IN', 'type', 'AAAA', 'rdata', x))
+          )
+      - name: rcode_id
+        expr: data:QueryStatus::int  # we need to double check it as CRWD docs shows other values
+          
