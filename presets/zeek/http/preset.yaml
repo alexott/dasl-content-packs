@@ -54,7 +54,7 @@ gold:
       - name: severity
         literal: Unknown
       - name: type_uid
-        expr: CAST((400200 + CASE WHEN LOWER(method) = 'connect' THEN 1 WHEN LOWER(method) = 'delete' THEN 2 WHEN LOWER(method) = 'get' THEN 3 WHEN LOWER(method) = 'head' THEN 4 WHEN LOWER(method) = 'options' THEN 5 WHEN LOWER(method) = 'post' THEN 6 WHEN LOWER(method) = 'put' THEN 7 WHEN LOWER(method) = 'trace' THEN 8 WHEN method IS NULL OR method = '' THEN 0 ELSE 99 END) AS BIGINT)
+        expr: CAST((400200 + activity_id) AS BIGINT)
       - name: type_name
         expr: "CASE WHEN method IS NOT NULL THEN CONCAT('HTTP Activity: ', method) ELSE null END"
       - name: time
