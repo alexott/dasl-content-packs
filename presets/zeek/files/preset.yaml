@@ -1,0 +1,82 @@
+name: internal_zeek_files
+description: "A preset for consuming Zeek Files logs"
+title: "Zeek Files"
+iconURL: "https://docs.zeek.org/en/master/_images/zeek-logo-text.png"
+author: "Alex Ott <alexey.ott@databricks.com>"
+autoloader:
+  format: jsonl
+  cloudFiles:
+    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, seen_bytes int, total_bytes int, duration double"
+bronze:
+  preTransform:
+    -
+      - "*"
+      - cast(ts as timestamp) as time
+silver:
+  transform:
+    - name: zeek_files
+      fields:
+        - name: id_origin_host
+          from: "`id.orig_h`"
+        - name: id_origin_port
+          from: "`id.orig_p`"
+        - name: id_response_host
+          from: "`id.resp_h`"
+        - name: id_response_port
+          from: "`id.resp_p`"
+      utils:
+        unreferencedColumns:
+          preserve: true
+          omitColumns:
+            - "`id.resp_h`"
+            - "`id.orig_h`"
+            - ts
+            - "`id.resp_p`"
+            - "`id.orig_p`"
+gold:
+  - name: file_activity
+    input: zeek_files
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE 
+              WHEN is_orig THEN 2  -- Write/Upload
+              ELSE 1  -- Read/Download
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE 
+            WHEN activity_id = 1 THEN 'Read'
+            WHEN activity_id = 2 THEN 'Write'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('1' AS INT)
+      - name: category_name
+        literal: System Activity
+      - name: class_uid
+        expr: CAST('1001' AS INT)
+      - name: class_name
+        literal: File System Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('File System Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: metadata.product.name
+        literal: Zeek Files
+      - name: metadata.product.vendor_name
+        literal: Zeek
+      - name: metadata.uid
+        from: uid
+      - name: file.name
+        from: filename
+      - name: duration
+        expr: cast(duration*1000 as long)
