@@ -1,0 +1,138 @@
+name: internal_zeek_dns
+description: "A preset for consuming Zeek DNS logs"
+title: "Zeek DNS"
+iconURL: "https://docs.zeek.org/en/master/_images/zeek-logo-text.png"
+author: "Alex Ott <alexey.ott@databricks.com>"
+autoloader:
+  format: jsonl
+  cloudFiles:
+    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, qtype int, qclass int, trans_id int, rtt double"
+bronze:
+  preTransform:
+    -
+      - "*"
+      - cast(ts as timestamp) as time
+silver:
+  transform:
+    - name: zeek_dns
+      fields:
+        - name: id_origin_host
+          from: "`id.orig_h`"
+        - name: id_origin_port
+          from: "`id.orig_p`"
+        - name: id_response_host
+          from: "`id.resp_h`"
+        - name: id_response_port
+          from: "`id.resp_p`"
+      utils:
+        unreferencedColumns:
+          preserve: true
+          omitColumns:
+            - "`id.resp_h`"
+            - "`id.orig_h`"
+            - ts
+            - "`id.resp_p`"
+            - "`id.orig_p`"
+gold:
+  - name: dns_activity
+    input: zeek_dns
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(CASE 
+            WHEN answers IS NOT NULL AND size(answers) > 0 THEN 2  -- Response
+            WHEN rtt IS NOT NULL THEN 2  -- Response (has round trip time)
+            ELSE 1  -- Query
+          END as INT)
+      - name: activity_name
+        expr: |
+          CASE 
+            WHEN activity_id = 1 THEN 'Query'
+            WHEN activity_id = 2 THEN 'Response'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('4' AS INT)
+      - name: category_name
+        literal: Network Activity
+      - name: class_uid
+        expr: CAST('4003' AS INT)
+      - name: class_name
+        literal: DNS Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('DNS Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: metadata.product.name
+        literal: Zeek DNS
+      - name: metadata.product.vendor_name
+        literal: Zeek
+      - name: metadata.uid
+        from: uid
+      - name: src_endpoint.ip
+        from: id_origin_host
+      - name: dst_endpoint.ip
+        from: id_response_host
+      - name: src_endpoint.port
+        from: id_origin_port
+      - name: dst_endpoint.port
+        from: id_response_port
+      - name: connection_info.protocol_name
+        expr: lower(proto)
+      - name: connection_info.protocol_num
+        expr: CAST((CASE WHEN LOWER(proto) = 'udp' THEN 17 WHEN LOWER(proto) = 'tcp' THEN 6 ELSE 255 END) AS INT)
+      - name: query.hostname
+        from: query
+      - name: query.class
+        expr: |
+          CASE 
+            WHEN qclass = 1 THEN 'IN'
+            WHEN qclass = 3 THEN 'CH'
+            WHEN qclass = 4 THEN 'HS'
+            ELSE 'UNKNOWN'
+          END
+      - name: query.type
+        from: qtype_name
+      - name: rcode_id
+        from: rcode
+      - name: rcode
+        from: rcode_name
+      - name: answers
+        expr: |
+          (CASE WHEN answers IS NOT NULL AND size(answers) > 0 THEN
+            transform(
+              arrays_zip(answers, TTLs),
+              x -> named_struct(
+                'rdata', x.answers,
+                'ttl', try_cast(x.TTLs as int),
+                'flags', 
+                  array_remove(
+                    array(
+                      CASE WHEN AA THEN 'Authoritative Answer' END,
+                      CASE WHEN TC THEN 'Truncated Response' END,
+                      CASE WHEN RD THEN 'Recursion Desired' END,
+                      CASE WHEN RA THEN 'Recursion Available' END,
+                      CASE WHEN Z != 0 THEN 'Other' END
+                    ), 
+                    null
+                  ),
+                'flag_ids',
+                  array_remove(
+                    array(
+                      CASE WHEN AA THEN 1 END,
+                      CASE WHEN TC THEN 2 END,
+                      CASE WHEN RD THEN 3 END,
+                      CASE WHEN RA THEN 4 END,
+                      CASE WHEN Z != 0 THEN 99 END
+                    ),
+                    null
+                  )
+              )
+            )
+          END)
