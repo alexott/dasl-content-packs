@@ -6,7 +6,7 @@ author: "Alex Ott <alexey.ott@databricks.com>"
 autoloader:
   format: jsonl
   cloudFiles:
-    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, qtype int, qclass int, trans_id int, rtt double"
+    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, qtype int, qclass int, trans_id int, rtt double, rcode int"
 bronze:
   preTransform:
     -
@@ -100,7 +100,7 @@ gold:
       - name: query.type
         from: qtype_name
       - name: rcode_id
-        from: rcode
+        expr: cast(rcode as int)
       - name: rcode
         from: rcode_name
       - name: answers
