@@ -6,7 +6,7 @@ author: "Alex Ott <alexey.ott@databricks.com>"
 autoloader:
   format: jsonl
   cloudFiles:
-    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, status_code int"
+    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, status_code int, orig_l2_addr string, resp_l2_addr string"
 bronze:
   preTransform:
     -
@@ -38,9 +38,28 @@ gold:
     input: zeek_conn
     fields:
       - name: activity_id
-        expr: CAST('6' AS INT)  # convert from conn_state?
-      - name: activity_name
-        literal: Traffic
+        expr: |
+          cast(
+            CASE
+              WHEN conn_state IN ('SF', 'RSTO', 'RSTR', 'RSTRH', 'SH', 'SHR') THEN 2
+              WHEN conn_state = 'S0' THEN 4
+              WHEN conn_state = 'REJ' THEN 5
+              ELSE 6
+            END
+          as int)
+      - name: activity_name  # Convert this into UDF?
+        expr: |
+          CASE
+            WHEN activity_id = '0' THEN 'Unknown'
+            WHEN activity_id = '1' THEN 'Open'
+            WHEN activity_id = '2' THEN 'Close'
+            WHEN activity_id = '3' THEN 'Reset'
+            WHEN activity_id = '4' THEN 'Fail'
+            WHEN activity_id = '5' THEN 'Refuse'
+            WHEN activity_id = '6' THEN 'Traffic'
+            WHEN activity_id = '7' THEN 'Listen'
+            ELSE 'Other'
+          END
       - name: category_uid
         expr: CAST('4' AS INT)
       - name: category_name
@@ -50,13 +69,13 @@ gold:
       - name: class_name
         literal: Network Activity
       - name: severity_id
-        expr: CAST('0' AS INT)
+        expr: CAST('1' AS INT)  # Informational
       - name: severity
-        literal: Unknown
+        literal: Informational
       - name: type_uid
-        expr: CAST('400106' AS BIGINT)
+        expr: CAST(class_uid * 100 + activity_id AS BIGINT)
       - name: type_name
-        literal: "Network Activity: Traffic"
+        expr: "concat('Network Activity: ', activity_name)"
       - name: time
         from: time
       - name: start_time
@@ -81,23 +100,37 @@ gold:
         expr: lower(proto)
       - name: connection_info.flag_history
         from: history
-      - name: connection_info.protocol_num # TODO: expand it...
-        expr: CAST((CASE WHEN LOWER(proto) = 'icmp' THEN 1 WHEN LOWER(proto) = 'tcp' THEN 6 WHEN LOWER(proto) = 'udp' THEN 17 ELSE 255 END) AS INT)
+      - name: connection_info.protocol_num
+        expr: | # TODO: implement as UDF?
+          CAST((
+            CASE WHEN LOWER(proto) = 'icmp' THEN 1
+            WHEN LOWER(proto) = 'tcp' THEN 6
+            WHEN LOWER(proto) = 'udp' THEN 17
+            ELSE 255 END)
+          AS INT)
+      - name: connection_info.direction_id
+        expr: CAST('0' AS INT)  # Unknown
+      # - name: app_name
+      #   from: service
       - name: traffic.bytes_in
-        from: orig_bytes
-      - name: traffic.bytes_out
         from: resp_bytes
+      - name: traffic.bytes_out
+        from: orig_bytes
       - name: traffic.bytes
         expr: resp_bytes + orig_bytes
-      - name: traffic.bytes_missed
-        from: missed_bytes
+      # - name: traffic.bytes_missed
+      #   from: missed_bytes
       - name: traffic.packets_in
-        from: orig_pkts
-      - name: traffic.packets_out
         from: resp_pkts
+      - name: traffic.packets_out
+        from: orig_pkts
       - name: traffic.packets
         expr: orig_pkts + resp_pkts
+      # - name: traffic.bytes_total
+      #   expr: orig_ip_bytes + resp_ip_bytes
       # - name: duration
-      #   expr: CAST(duration AS BIGINT)
-      # - name: 
-      #   from: 
+      #   expr: CAST(duration*1000 AS BIGINT)
+      - name: src_endpoint.mac
+        from: orig_l2_addr
+      - name: dst_endpoint.mac
+        from: resp_l2_addr
