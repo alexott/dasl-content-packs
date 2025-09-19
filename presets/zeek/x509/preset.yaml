@@ -1,0 +1,158 @@
+# Doesn't work with DASL Lite schema
+name: internal_zeek_x509
+description: "A preset for consuming Zeek x509 logs"
+title: "Zeek Conn"
+iconURL: "https://docs.zeek.org/en/master/_images/zeek-logo-text.png"
+author: "Alex Ott <alexey.ott@databricks.com>"
+autoloader:
+  format: jsonl
+  cloudFiles:
+    schemaHints: "ts double, certificate.version int, certificate.not_valid_before double, certificate.key_length int"
+bronze:
+  preTransform:
+    -
+      - "*"
+      - cast(ts as timestamp) as time
+silver:
+  transform:
+    - name: zeek_x509
+      fields:
+        - name: certificate_version
+          from: "`certificate.version`"
+        - name: certificate_serial
+          from: "`certificate.serial`"
+        - name: certificate_subject
+          from: "`certificate.subject`"
+        - name: certificate_issuer
+          from: "`certificate.issuer`"
+        - name: certificate_not_valid_before
+          expr: "cast(`certificate.not_valid_before` as timestamp)"
+        - name: certificate_not_valid_after
+          expr: "cast(`certificate.not_valid_after` as timestamp)"
+        - name: certificate_key_alg
+          from: "`certificate.key_alg`"
+        - name: certificate_sig_alg
+          from: "`certificate.sig_alg`"
+        - name: certificate_key_type
+          from: "`certificate.key_type`"
+        - name: certificate_key_length
+          from: "`certificate.key_length`"
+        - name: certificate_exponent
+          from: "`certificate.exponent`"
+        - name: basic_constraints_ca
+          from: "`basic_constraints.ca`"
+        - name: san_dns
+          from: "`san.dns`"
+      utils:
+        unreferencedColumns:
+          preserve: true
+          omitColumns:
+            - ts
+            - "`certificate.version`"
+            - "`certificate.serial`"
+            - "`certificate.subject`"
+            - "`certificate.issuer`"
+            - "`certificate.not_valid_before`"
+            - "`certificate.not_valid_after`"
+            - "`certificate.key_alg`"
+            - "`certificate.sig_alg`"
+            - "`certificate.key_type`"
+            - "`certificate.key_length`"
+            - "`certificate.exponent`"
+            - "`basic_constraints.ca`"
+            - "`san.dns`"
+gold:
+  - name: authentication
+    input: zeek_x509
+    fields:
+      # OCSF Classification Fields
+      - name: activity_id
+        expr: CAST('3' AS INT)  # Authentication Ticket (TGT request)
+      - name: activity_name
+        literal: Authentication Ticket
+      - name: category_uid
+        expr: CAST('3' AS INT)
+      - name: category_name
+        literal: Identity & Access Management
+      - name: class_uid
+        expr: CAST('3002' AS INT)
+      - name: class_name
+        literal: Authentication
+      - name: severity_id
+        expr: CAST('1' AS INT)  # Informational
+      - name: severity
+        literal: Informational
+      - name: type_uid
+        expr: CAST(class_uid * 100 + activity_id AS BIGINT)
+      - name: type_name
+        expr: "concat('Authentication: ', activity_name)"
+      
+      # Time Fields
+      - name: time
+        from: time
+      - name: start_time
+        from: time
+      
+      # Metadata Fields
+      - name: metadata.product.name
+        literal: Zeek x509
+      - name: metadata.product.vendor_name
+        literal: Zeek
+      - name: metadata.uid
+        from: id
+      
+      # Authentication Method
+      - name: auth_type_id
+        expr: CAST('5' AS INT)  # Certificate
+      - name: auth_type
+        literal: Certificate
+      - name: auth_method_id
+        expr: CAST('5' AS INT)  # Certificate
+      - name: auth_method
+        literal: Certificate
+      
+      # Certificate Information
+      - name: auth_cert.id
+        from: id
+      - name: auth_cert.serial
+        from: certificate_serial
+      - name: auth_cert.subject
+        from: certificate_subject
+      - name: auth_cert.issuer
+        from: certificate_issuer
+      - name: auth_cert.valid_from
+        from: certificate_not_valid_before
+      - name: auth_cert.valid_to
+        from: certificate_not_valid_after
+      - name: auth_cert.algorithm
+        from: certificate_sig_alg
+      - name: auth_cert.key_length
+        from: certificate_key_length
+      - name: auth_cert.key_type
+        from: certificate_key_type
+      - name: auth_cert.version
+        from: certificate_version
+      
+      # Subject Alternative Names
+      - name: auth_cert.san_dns
+        from: san_dns
+      
+      # Basic Constraints
+      - name: auth_cert.basic_constraints_ca
+        from: "`basic_constraints.ca`"
+      
+      # Additional Certificate Fields
+      - name: auth_cert.exponent
+        from: certificate_exponent
+      - name: auth_cert.key_alg
+        from: certificate_key_alg
+      
+      # Status and Action
+      - name: status_id
+        expr: CAST('1' AS INT)  # Success (certificate observed)
+      - name: status
+        literal: Success
+      - name: action_id
+        expr: CAST('3' AS INT)  # Observed
+      - name: action
+        literal: Observed
