@@ -15,6 +15,7 @@ bronze:
 silver:
   transform:
     - name: crowdstrike
+      filter: data is not null
       fields:
         - name: id
           expr: data:id::string
