@@ -419,4 +419,76 @@ gold:
           )
       - name: rcode_id
         expr: data:QueryStatus::int  # we need to double check it as CRWD docs shows other values
+  - name: process_activity
+    input: crowdstrike
+    filter: |
+      event_name IN (
+        'SyntheticProcessRollup2', 'ProcessRollup2'
+      )
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(0 AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = 1 THEN 'Launch'
+            WHEN activity_id = 2 THEN 'Terminate'
+            WHEN activity_id = 3 THEN 'Open'
+            WHEN activity_id = 4 THEN 'Inject'
+            WHEN activity_id = 5 THEN 'Set User ID'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('1' AS INT)
+      - name: category_name
+        literal: System Activity
+      - name: class_uid
+        expr: CAST('1007' AS INT)
+      - name: class_name
+        literal: Process Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('System Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: metadata
+        from: metadata
+      # - name: start_time
+      #   expr: cast(data:ProcessStartTime::double as timestamp)
+      - name: process.cmd_line
+        expr: data:CommandLine::string
+      - name: process.session.created_time
+        expr: cast(data:ProcessStartTime::double as timestamp)
+      - name: process.session.uid
+        expr: data:TargetProcessId::string
+      - name: process.user.name
+        expr: data:UserName::string
+      - name: process.user.uid
+        expr: data:UserSid::string
+      - name: process.pid
+        expr: data:RawProcessId::int
+      - name: process.name
+        expr: "regexp_extract(data:ImageFileName::string, '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)"
+      - name: raw_data
+        from: data
+      - name: device.name
+        expr: data:ComputerName::string
+      - name: device.ip
+        expr: coalesce(data:LocalAddressIP4::string, data:LocalAddressIP6::string, aip)
+      - name: device.uid
+        from: aid
+      # - name:
+      #   expr: 
+      # - name:
+      #   expr: 
+      # - name:
+      #   expr: 
+      # - name:
+      #   expr: 
           
