@@ -423,12 +423,21 @@ gold:
     input: crowdstrike
     filter: |
       event_name IN (
-        'SyntheticProcessRollup2', 'ProcessRollup2'
+        'SyntheticProcessRollup2', 'ProcessRollup2', 'CreateProcessArgs', 'EndOfProcess',
+        'ProcessInjection', 'ProcessBlocked', 'TerminateProcess', 'ServiceStarted',
+        'HostedServiceStarted', 'HostedServiceStopped', 'KernelServiceStarted'
       )
     fields:
       - name: activity_id
         expr: |
-          CAST(0 AS INT)
+          CAST(
+            CASE
+              WHEN event_name IN ('EndOfProcess', 'TerminateProcess', 'HostedServiceStopped') THEN 2
+              WHEN event_name IN ('CreateProcessArgs', 'ServiceStarted', 'HostedServiceStarted', 'KernelServiceStarted') THEN 1
+              WHEN event_name = 'ProcessInjection' THEN 4
+              ELSE 0
+            END
+          AS INT)
       - name: activity_name
         expr: |
           CASE
@@ -462,19 +471,21 @@ gold:
       # - name: start_time
       #   expr: cast(try_variant_get(data, '$.ProcessStartTime', 'double') as timestamp)
       - name: process.cmd_line
-        expr: try_variant_get(data, '$.CommandLine', 'string')
+        expr: coalesce(try_variant_get(data, '$.CommandLine', 'string'), try_variant_get(data, '$.ImageFileName', 'string'))
       - name: process.session.created_time
         expr: cast(try_variant_get(data, '$.ProcessStartTime', 'double') as timestamp)
       - name: process.session.uid
         expr: try_variant_get(data, '$.TargetProcessId', 'string')
+      - name: process.uid
+        expr: try_variant_get(data, '$.TargetProcessId', 'string')
       - name: process.user.name
         expr: try_variant_get(data, '$.UserName', 'string')
       - name: process.user.uid
-        expr: try_variant_get(data, '$.UserSid', 'string')
+        expr: coalesce(try_variant_get(data, '$.UserSid', 'string'), try_variant_get(data, '$.UID', 'string'))
       - name: process.pid
         expr: try_variant_get(data, '$.RawProcessId', 'int')
       - name: process.name
-        expr: "regexp_extract(try_variant_get(data, '$.ImageFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)"
+        expr: "coalesce(try_variant_get(data, '$.ImageBaseName', 'string'), try_variant_get(data, '$.ServiceDisplayName', 'string'), regexp_extract(coalesce(try_variant_get(data, '$.ImageFileName', 'string'), try_variant_get(data, '$.TargetFileName', 'string'), try_variant_get(data, '$.InjecteeImageFileName', 'string')), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1))"
       - name: raw_data
         from: data
       - name: device.name
@@ -483,6 +494,16 @@ gold:
         expr: coalesce(try_variant_get(data, '$.LocalAddressIP4', 'string'), try_variant_get(data, '$.LocalAddressIP6', 'string'), aip)
       - name: device.uid
         from: aid
+      - name: actor.process.name
+        expr: "regexp_extract(try_variant_get(data, '$.InjectorImageFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)"
+      - name: actor.process.cmd_line
+        expr: try_variant_get(data, '$.InjectorImageFileName', 'string')
+      - name: actor.process.uid
+        expr: try_variant_get(data, '$.TargetProcessId', 'string')
+      # - name:
+      #   expr: 
+      # - name:
+      #   expr: 
       # - name:
       #   expr: 
       # - name:
