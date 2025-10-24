@@ -1,0 +1,3299 @@
+### Table: `account_change`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/account_change
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **policies**: `array<struct>`
+  - **is_applied**: `boolean`
+  - **name**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **policies**: `array<struct>`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+- **user**: `struct`
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **user_result**: `struct`
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+
+### Table: `api_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/api_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **http_request**: `struct`
+  - **args**: `string`
+  - **body_length**: `int`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_headers**: `array<struct>`
+  - **http_method**: `string`
+  - **length**: `int`
+  - **referrer**: `string`
+  - **url**: `string`
+  - **user_agent**: `string`
+  - **version**: `string`
+- **http_response**: `struct`
+  - **body_length**: `int`
+  - **code**: `int`
+  - **content_type**: `string`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_headers**: `array<struct>`
+  - **latency**: `int`
+  - **length**: `int`
+  - **message**: `string`
+  - **status**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **resources**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+- **resources**: `array<struct>`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **start_time**: `timestamp`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `authentication`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/authentication
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **auth_factors**: `array<struct>`
+  - **factor_type**: `string`
+  - **factor_type_id**: `int`
+- **auth_factors**: `array<struct>`
+- **auth_protocol**: `string`
+- **auth_protocol_id**: `int`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **is_mfa**: `boolean`
+- **is_remote**: `boolean`
+- **logon_type**: `string`
+- **logon_type_id**: `int`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **service**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+- **session**: `struct`
+  - **created_time**: `timestamp`
+  - **credential_uid**: `string`
+  - **expiration_reason**: `string`
+  - **expiration_time**: `timestamp`
+  - **is_mfa**: `boolean`
+  - **is_remote**: `boolean`
+  - **is_vpn**: `boolean`
+  - **issuer**: `string`
+  - **terminal**: `string`
+  - **uid**: `string`
+  - **uid_alt**: `string`
+  - **uuid**: `string`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+- **user**: `struct`
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+
+### Table: `data_security_finding`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/data_security_finding
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **confidence**: `string`
+- **confidence_id**: `int`
+- **confidence_score**: `int`
+- **database**: `struct`
+  - **desc**: `string`
+  - **modified_time**: `timestamp`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **databucket**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **is_encrypted**: `boolean`
+  - **is_public**: `boolean`
+  - **modified_time**: `timestamp`
+  - **name**: `string`
+  - **size**: `bigint`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **end_time**: `timestamp`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **file**: `struct`
+  - **name**: `string`
+  - **path**: `string`
+- **finding_info**: `struct`
+  - **analytic**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **category**: `string`
+    - **desc**: `string`
+    - **related_analytics**: `array<variant>`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **version**: `string`
+  - **attacks**: `array<struct>`
+    - **sub_technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactic**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactics**: `array<struct>`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactics**: `array<struct>`
+    - **technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **version**: `string`
+  - **attacks**: `array<struct>`
+  - **created_time**: `timestamp`
+  - **data_sources**: `string`
+  - **desc**: `string`
+  - **first_seen_time**: `timestamp`
+  - **last_seen_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **src_url**: `string`
+  - **title**: `string`
+  - **uid**: `string`
+- **impact**: `string`
+- **impact_id**: `int`
+- **impact_score**: `int`
+- **is_alert**: `boolean`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **risk_details**: `string`
+- **risk_level**: `string`
+- **risk_level_id**: `int`
+- **risk_score**: `int`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **table**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **modified_time**: `timestamp`
+  - **size**: `bigint`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **unmapped**: `variant`
+
+### Table: `datastore_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/datastore_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **database**: `struct`
+  - **desc**: `string`
+  - **modified_time**: `timestamp`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **databucket**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **is_encrypted**: `boolean`
+  - **is_public**: `boolean`
+  - **modified_time**: `timestamp`
+  - **name**: `string`
+  - **size**: `bigint`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **http_request**: `struct`
+  - **args**: `string`
+  - **body_length**: `int`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_headers**: `array<struct>`
+  - **http_method**: `string`
+  - **length**: `int`
+  - **referrer**: `string`
+  - **url**: `string`
+  - **user_agent**: `string`
+  - **version**: `string`
+- **http_response**: `struct`
+  - **body_length**: `int`
+  - **code**: `int`
+  - **content_type**: `string`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_headers**: `array<struct>`
+  - **latency**: `int`
+  - **length**: `int`
+  - **message**: `string`
+  - **status**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **table**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **modified_time**: `timestamp`
+  - **size**: `bigint`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type**: `string`
+- **type_id**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `dhcp_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/dhcp_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **app_name**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **connection_info**: `struct`
+  - **direction**: `string`
+  - **direction_id**: `int`
+  - **flag_history**: `string`
+  - **protocol_name**: `string`
+  - **protocol_num**: `int`
+  - **protocol_ver**: `string`
+  - **protocol_ver_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **is_renewal**: `boolean`
+- **lease_dur**: `int`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **traffic**: `struct`
+  - **bytes**: `bigint`
+  - **bytes_in**: `bigint`
+  - **bytes_missed**: `bigint`
+  - **bytes_out**: `bigint`
+  - **chunks**: `bigint`
+  - **chunks_in**: `bigint`
+  - **chunks_out**: `bigint`
+  - **packets**: `bigint`
+  - **packets_in**: `bigint`
+  - **packets_out**: `bigint`
+- **transaction_uid**: `string`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `dns_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/dns_activity
+
+
+**Description:** The table captures detailed information about various activities and actions within our systems. It includes unique identifiers for tracking data lineage, as well as details about the actions taken, associated activities, and their respective categories. This data can be used for analyzing user interactions, monitoring system performance, and understanding the context of different actions taken within applications. Additionally, it includes metadata and connection information that can aid in troubleshooting and enhancing system integrations.
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string` — The event activity name, as defined by the activity_id.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **answers**: `array<struct>`
+  - **class**: `string`
+  - **packet_uid**: `int`
+  - **type**: `string`
+  - **flag_ids**: `array<int>`
+  - **flags**: `array<string>`
+  - **rdata**: `string`
+  - **ttl**: `int`
+- **answers**: `array<struct>`
+- **app_name**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **connection_info**: `struct` — The network connection information.
+  - **direction**: `string`
+  - **direction_id**: `int`
+  - **flag_history**: `string`
+  - **protocol_name**: `string`
+  - **protocol_num**: `int`
+  - **protocol_ver**: `string`
+  - **protocol_ver_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct` — The responder (server) in a network connection.
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **query**: `struct`
+  - **class**: `string`
+  - **packet_uid**: `int`
+  - **type**: `string`
+  - **hostname**: `string`
+  - **opcode**: `string`
+  - **opcode_id**: `int`
+- **raw_data**: `variant`
+- **rcode**: `string`
+- **rcode_id**: `int`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **traffic**: `struct`
+  - **bytes**: `bigint`
+  - **bytes_in**: `bigint`
+  - **bytes_missed**: `bigint`
+  - **bytes_out**: `bigint`
+  - **chunks**: `bigint`
+  - **chunks_in**: `bigint`
+  - **chunks_out**: `bigint`
+  - **packets**: `bigint`
+  - **packets_in**: `bigint`
+  - **packets_out**: `bigint`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `email_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/email_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **direction**: `string`
+- **direction_id**: `int`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **email**: `struct`
+  - **to**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **message**: `string`
+- **message_trace_uid**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **protocol_name**: `string`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `entity_management`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/entity_management
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **access_list**: `array<string>`
+- **access_mask**: `int`
+- **action**: `string`
+- **action_id**: `int`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **comment**: `string`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **entity**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+  - **data**: `variant`
+  - **email**: `struct`
+    - **to**: `string`
+  - **group**: `struct`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **policies**: `array<struct>`
+    - **is_applied**: `boolean`
+    - **name**: `string`
+    - **uid**: `string`
+    - **version**: `string`
+  - **policies**: `array<struct>`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **version**: `string`
+- **entity_result**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+  - **data**: `variant`
+  - **email**: `struct`
+    - **to**: `string`
+  - **group**: `struct`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **policies**: `array<struct>`
+    - **is_applied**: `boolean`
+    - **name**: `string`
+    - **uid**: `string`
+    - **version**: `string`
+  - **policies**: `array<struct>`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **version**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `file_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/file_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **access_mask**: `int`
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **component**: `string`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **file**: `struct`
+  - **name**: `string`
+  - **path**: `string`
+- **file_diff**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `group_management`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/group_management
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **group**: `struct`
+  - **name**: `string`
+  - **privileges**: `string`
+  - **type**: `string`
+  - **uid**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **privileges**: `array<string>`
+- **raw_data**: `variant`
+- **resource**: `struct`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+- **user**: `struct`
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+
+### Table: `http_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/http_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **app_name**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **connection_info**: `struct`
+  - **direction**: `string`
+  - **direction_id**: `int`
+  - **flag_history**: `string`
+  - **protocol_name**: `string`
+  - **protocol_num**: `int`
+  - **protocol_ver**: `string`
+  - **protocol_ver_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **file**: `struct`
+  - **name**: `string`
+  - **path**: `string`
+- **firewall_rule**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+  - **category**: `string`
+  - **desc**: `string`
+  - **type**: `string`
+  - **version**: `string`
+  - **condition**: `string`
+  - **duration**: `bigint`
+  - **match_details**: `array<string>`
+  - **match_location**: `string`
+  - **rate_limit**: `int`
+  - **sensitivity**: `string`
+- **http_cookies**: `array<struct>`
+  - **domain**: `string`
+  - **expiration_time**: `timestamp`
+  - **http_only**: `boolean`
+  - **is_http_only**: `boolean`
+  - **is_secure**: `boolean`
+  - **name**: `string`
+  - **path**: `string`
+  - **samesite**: `string`
+  - **secure**: `boolean`
+  - **value**: `string`
+- **http_cookies**: `array<struct>`
+- **http_request**: `struct`
+  - **args**: `string`
+  - **body_length**: `int`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_headers**: `array<struct>`
+  - **http_method**: `string`
+  - **length**: `int`
+  - **referrer**: `string`
+  - **url**: `string`
+  - **user_agent**: `string`
+  - **version**: `string`
+- **http_response**: `struct`
+  - **body_length**: `int`
+  - **code**: `int`
+  - **content_type**: `string`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_headers**: `array<struct>`
+  - **latency**: `int`
+  - **length**: `int`
+  - **message**: `string`
+  - **status**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **policy**: `struct`
+  - **is_applied**: `boolean`
+  - **name**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **traffic**: `struct`
+  - **bytes**: `bigint`
+  - **bytes_in**: `bigint`
+  - **bytes_missed**: `bigint`
+  - **bytes_out**: `bigint`
+  - **chunks**: `bigint`
+  - **chunks_in**: `bigint`
+  - **chunks_out**: `bigint`
+  - **packets**: `bigint`
+  - **packets_in**: `bigint`
+  - **packets_out**: `bigint`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `kernel_extension_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/kernel_extension_activity
+
+#### Schema
+- **dasl_id**: `string`
+- **time**: `timestamp`
+- **class_name**: `string`
+- **type_uid**: `bigint`
+- **category_name**: `string`
+- **metadata**: `struct`
+  - **uid**: `string`
+  - **profiles**: `array<string>`
+  - **product**: `struct`
+    - **vendor_name**: `string`
+    - **name**: `string`
+    - **version**: `string`
+  - **tenant_uid**: `string`
+  - **event_code**: `string`
+- **severity**: `string`
+- **severity_id**: `int`
+- **class_uid**: `int`
+- **actor**: `struct`
+  - **process**: `struct`
+    - **tid**: `int`
+    - **pid**: `int`
+- **category_uid**: `int`
+- **activity_id**: `int`
+- **driver**: `struct`
+  - **file**: `struct`
+    - **path**: `string`
+    - **name**: `string`
+- **type_name**: `string`
+- **start_time**: `timestamp`
+- **activity_name**: `string`
+
+### Table: `network_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/network_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **connection_info**: `struct`
+  - **direction**: `string`
+  - **direction_id**: `int`
+  - **flag_history**: `string`
+  - **protocol_name**: `string`
+  - **protocol_num**: `int`
+  - **protocol_ver**: `string`
+  - **protocol_ver_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **end_time**: `timestamp`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **policy**: `struct`
+  - **is_applied**: `boolean`
+  - **name**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **start_time**: `timestamp`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **traffic**: `struct`
+  - **bytes**: `bigint`
+  - **bytes_in**: `bigint`
+  - **bytes_missed**: `bigint`
+  - **bytes_out**: `bigint`
+  - **chunks**: `bigint`
+  - **chunks_in**: `bigint`
+  - **chunks_out**: `bigint`
+  - **packets**: `bigint`
+  - **packets_in**: `bigint`
+  - **packets_out**: `bigint`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+- **url**: `struct`
+  - **url_string**: `string`
+
+### Table: `process_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/process_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **exit_code**: `int`
+- **injection_type**: `string`
+- **injection_type_id**: `int`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **module**: `struct`
+  - **base_address**: `string`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+  - **function_name**: `string`
+  - **load_type**: `string`
+  - **load_type_id**: `int`
+  - **start_address**: `string`
+  - **type**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **process**: `struct`
+  - **cmd_line**: `string`
+  - **cpid**: `string`
+  - **name**: `string`
+  - **pid**: `int`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+  - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **raw_data**: `variant`
+- **requested_permissions**: `int`
+- **severity**: `string`
+- **severity_id**: `int`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `scheduled_job_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/scheduled_job_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **job**: `struct`
+  - **cmd_line**: `string`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+  - **last_run_time**: `timestamp`
+  - **name**: `string`
+  - **next_run_time**: `timestamp`
+  - **run_state**: `string`
+  - **run_state_id**: `int`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **risk_details**: `string`
+- **risk_level**: `string`
+- **risk_level_id**: `int`
+- **risk_score**: `int`
+- **severity**: `string`
+- **severity_id**: `int`
+- **start_time**: `timestamp`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `script_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/script_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **script**: `struct`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **hashes**: `array<struct>`
+  - **name**: `string`
+  - **parent_uid**: `string`
+  - **script_content**: `struct`
+    - **is_truncated**: `boolean`
+    - **untruncated_size**: `int`
+    - **value**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **severity**: `string`
+- **severity_id**: `int`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `ssh_activity`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/ssh_activity
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **app_name**: `string`
+- **auth_type**: `string`
+- **auth_type_id**: `int`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **connection_info**: `struct`
+  - **direction**: `string`
+  - **direction_id**: `int`
+  - **flag_history**: `string`
+  - **protocol_name**: `string`
+  - **protocol_num**: `int`
+  - **protocol_ver**: `string`
+  - **protocol_ver_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **file**: `struct`
+  - **name**: `string`
+  - **path**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **protocol_ver**: `string`
+- **raw_data**: `variant`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+
+### Table: `user_access`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/user_access
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **authorizations**: `array<struct>`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **api**: `struct`
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **privileges**: `array<string>`
+- **raw_data**: `variant`
+- **resource**: `struct`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+- **user**: `struct`
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+
+### Table: `vulnerability_finding`
+
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/vulnerability_finding
+
+#### Schema
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity**: `string`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **groups**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string`
+- **disposition_id**: `int`
+- **end_time**: `timestamp`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **enrichments**: `array<struct>`
+- **finding_info**: `struct`
+  - **analytic**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **category**: `string`
+    - **desc**: `string`
+    - **related_analytics**: `array<variant>`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **version**: `string`
+  - **attacks**: `array<struct>`
+    - **sub_technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactic**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactics**: `array<struct>`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactics**: `array<struct>`
+    - **technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **version**: `string`
+  - **attacks**: `array<struct>`
+  - **created_time**: `timestamp`
+  - **data_sources**: `string`
+  - **desc**: `string`
+  - **first_seen_time**: `timestamp`
+  - **last_seen_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **src_url**: `string`
+  - **title**: `string`
+  - **uid**: `string`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **observables**: `array<struct>`
+- **raw_data**: `variant`
+- **resources**: `array<struct>`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+- **resources**: `array<struct>`
+- **severity**: `string`
+- **severity_id**: `int`
+- **start_time**: `timestamp`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **unmapped**: `variant`
+- **vulnerabilities**: `array<struct>`
+  - **cve**: `struct`
+    - **created_time**: `timestamp`
+    - **cvss**: `array<struct>`
+      - **base_score**: `float`
+      - **overall_score**: `float`
+      - **severity**: `string`
+      - **src_url**: `string`
+    - **cvss**: `array<struct>`
+    - **uid**: `string`
+  - **desc**: `string`
+  - **exploit_last_seen_time**: `timestamp`
+  - **first_seen_time**: `timestamp`
+  - **fix_available**: `boolean`
+  - **is_exploit_available**: `boolean`
+  - **is_fix_available**: `boolean`
+- **vulnerabilities**: `array<struct>`
