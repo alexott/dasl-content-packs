@@ -1,9 +1,11 @@
-### Table: `account_change`
+## Schema: `dasl_1_0_field_env.gold`
 
+### Table: `account_change`
 
 **URL:** https://schema.ocsf.io/1.5.0/classes/account_change
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -15,7 +17,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -83,7 +84,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **message**: `string`
 - **metadata**: `struct`
   - **correlation_uid**: `string`
@@ -108,13 +108,11 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **policies**: `array<struct>`
   - **is_applied**: `boolean`
   - **name**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **policies**: `array<struct>`
 - **raw_data**: `variant`
 - **severity**: `string`
 - **severity_id**: `int`
@@ -165,10 +163,10 @@
 
 ### Table: `api_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/api_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -179,7 +177,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -270,14 +267,12 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **http_request**: `struct`
   - **args**: `string`
   - **body_length**: `int`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
-  - **http_headers**: `array<struct>`
   - **http_method**: `string`
   - **length**: `int`
   - **referrer**: `string`
@@ -291,7 +286,6 @@
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
-  - **http_headers**: `array<struct>`
   - **latency**: `int`
   - **length**: `int`
   - **message**: `string`
@@ -320,14 +314,12 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **resources**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **name**: `string`
   - **uid**: `string`
-- **resources**: `array<struct>`
 - **severity**: `string`
 - **severity_id**: `int`
 - **src_endpoint**: `struct`
@@ -366,10 +358,10 @@
 
 ### Table: `authentication`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/authentication
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -381,7 +373,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -422,7 +413,6 @@
 - **auth_factors**: `array<struct>`
   - **factor_type**: `string`
   - **factor_type_id**: `int`
-- **auth_factors**: `array<struct>`
 - **auth_protocol**: `string`
 - **auth_protocol_id**: `int`
 - **category_name**: `string`
@@ -468,7 +458,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **is_mfa**: `boolean`
 - **is_remote**: `boolean`
 - **logon_type**: `string`
@@ -497,7 +486,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **service**: `struct`
   - **name**: `string`
@@ -558,10 +546,10 @@
 
 ### Table: `data_security_finding`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/data_security_finding
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -572,7 +560,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -654,7 +641,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **is_encrypted**: `boolean`
   - **is_public**: `boolean`
   - **modified_time**: `timestamp`
@@ -672,7 +658,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -719,7 +704,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **file**: `struct`
   - **name**: `string`
   - **path**: `string`
@@ -746,13 +730,11 @@
       - **name**: `string`
       - **uid**: `string`
       - **src_url**: `string`
-    - **tactics**: `array<struct>`
     - **technique**: `struct`
       - **name**: `string`
       - **uid**: `string`
       - **src_url**: `string`
     - **version**: `string`
-  - **attacks**: `array<struct>`
   - **created_time**: `timestamp`
   - **data_sources**: `string`
   - **desc**: `string`
@@ -790,7 +772,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **risk_details**: `string`
 - **risk_level**: `string`
@@ -835,7 +816,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **modified_time**: `timestamp`
   - **size**: `bigint`
 - **time**: `timestamp`
@@ -845,10 +825,10 @@
 
 ### Table: `datastore_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/datastore_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -859,7 +839,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -938,7 +917,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **is_encrypted**: `boolean`
   - **is_public**: `boolean`
   - **modified_time**: `timestamp`
@@ -956,7 +934,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -1002,14 +979,12 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **http_request**: `struct`
   - **args**: `string`
   - **body_length**: `int`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
-  - **http_headers**: `array<struct>`
   - **http_method**: `string`
   - **length**: `int`
   - **referrer**: `string`
@@ -1023,7 +998,6 @@
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
-  - **http_headers**: `array<struct>`
   - **latency**: `int`
   - **length**: `int`
   - **message**: `string`
@@ -1052,7 +1026,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **severity**: `string`
 - **severity_id**: `int`
@@ -1093,7 +1066,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **modified_time**: `timestamp`
   - **size**: `bigint`
 - **time**: `timestamp`
@@ -1106,10 +1078,10 @@
 
 ### Table: `dhcp_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/dhcp_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -1169,7 +1141,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **is_renewal**: `boolean`
 - **lease_dur**: `int`
 - **message**: `string`
@@ -1196,7 +1167,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **severity**: `string`
 - **severity_id**: `int`
@@ -1247,13 +1217,12 @@
 
 ### Table: `dns_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/dns_activity
-
 
 **Description:** The table captures detailed information about various activities and actions within our systems. It includes unique identifiers for tracking data lineage, as well as details about the actions taken, associated activities, and their respective categories. This data can be used for analyzing user interactions, monitoring system performance, and understanding the context of different actions taken within applications. Additionally, it includes metadata and connection information that can aid in troubleshooting and enhancing system integrations.
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -1268,7 +1237,6 @@
   - **flags**: `array<string>`
   - **rdata**: `string`
   - **ttl**: `int`
-- **answers**: `array<struct>`
 - **app_name**: `string`
 - **category_name**: `string`
 - **category_uid**: `int`
@@ -1313,7 +1281,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **message**: `string`
 - **metadata**: `struct`
   - **correlation_uid**: `string`
@@ -1338,7 +1305,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **query**: `struct`
   - **class**: `string`
   - **packet_uid**: `int`
@@ -1397,10 +1363,10 @@
 
 ### Table: `email_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/email_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -1445,7 +1411,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **message**: `string`
 - **message_trace_uid**: `string`
 - **metadata**: `struct`
@@ -1471,7 +1436,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **protocol_name**: `string`
 - **raw_data**: `variant`
 - **severity**: `string`
@@ -1511,10 +1475,10 @@
 
 ### Table: `entity_management`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/entity_management
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **access_list**: `array<string>`
 - **access_mask**: `int`
@@ -1527,7 +1491,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -1598,7 +1561,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -1621,7 +1583,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **entity**: `struct`
   - **name**: `string`
   - **uid**: `string`
@@ -1645,7 +1606,6 @@
     - **name**: `string`
     - **uid**: `string`
     - **version**: `string`
-  - **policies**: `array<struct>`
   - **type**: `string`
   - **type_id**: `int`
   - **user**: `struct`
@@ -1678,7 +1638,6 @@
     - **name**: `string`
     - **uid**: `string`
     - **version**: `string`
-  - **policies**: `array<struct>`
   - **type**: `string`
   - **type_id**: `int`
   - **user**: `struct`
@@ -1712,7 +1671,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **severity**: `string`
 - **severity_id**: `int`
@@ -1728,10 +1686,10 @@
 
 ### Table: `file_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/file_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **access_mask**: `int`
 - **action**: `string`
@@ -1744,7 +1702,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -1796,7 +1753,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -1819,7 +1775,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **file**: `struct`
   - **name**: `string`
   - **path**: `string`
@@ -1848,7 +1803,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **severity**: `string`
 - **severity_id**: `int`
@@ -1864,10 +1818,10 @@
 
 ### Table: `group_management`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/group_management
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -1879,7 +1833,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -1947,7 +1900,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **group**: `struct`
   - **name**: `string`
   - **privileges**: `string`
@@ -1977,7 +1929,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **privileges**: `array<string>`
 - **raw_data**: `variant`
 - **resource**: `struct`
@@ -2028,10 +1979,10 @@
 
 ### Table: `http_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/http_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -2082,7 +2033,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **file**: `struct`
   - **name**: `string`
   - **path**: `string`
@@ -2110,14 +2060,12 @@
   - **samesite**: `string`
   - **secure**: `boolean`
   - **value**: `string`
-- **http_cookies**: `array<struct>`
 - **http_request**: `struct`
   - **args**: `string`
   - **body_length**: `int`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
-  - **http_headers**: `array<struct>`
   - **http_method**: `string`
   - **length**: `int`
   - **referrer**: `string`
@@ -2131,7 +2079,6 @@
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
-  - **http_headers**: `array<struct>`
   - **latency**: `int`
   - **length**: `int`
   - **message**: `string`
@@ -2160,7 +2107,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **policy**: `struct`
   - **is_applied**: `boolean`
   - **name**: `string`
@@ -2215,10 +2161,10 @@
 
 ### Table: `kernel_extension_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/kernel_extension_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string`
 - **time**: `timestamp`
 - **class_name**: `string`
@@ -2252,10 +2198,10 @@
 
 ### Table: `network_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/network_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -2315,7 +2261,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **message**: `string`
 - **metadata**: `struct`
   - **correlation_uid**: `string`
@@ -2340,7 +2285,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **policy**: `struct`
   - **is_applied**: `boolean`
   - **name**: `string`
@@ -2398,10 +2342,10 @@
 
 ### Table: `process_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/process_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -2413,7 +2357,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -2464,7 +2407,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -2487,7 +2429,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **exit_code**: `int`
 - **injection_type**: `string`
 - **injection_type_id**: `int`
@@ -2525,7 +2466,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **process**: `struct`
   - **cmd_line**: `string`
   - **cpid**: `string`
@@ -2567,10 +2507,10 @@
 
 ### Table: `scheduled_job_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/scheduled_job_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -2582,7 +2522,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -2633,7 +2572,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -2656,7 +2594,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **job**: `struct`
   - **cmd_line**: `string`
   - **created_time**: `timestamp`
@@ -2699,7 +2636,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **risk_details**: `string`
 - **risk_level**: `string`
@@ -2720,10 +2656,10 @@
 
 ### Table: `script_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/script_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -2735,7 +2671,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -2786,7 +2721,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -2809,7 +2743,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **message**: `string`
 - **metadata**: `struct`
   - **correlation_uid**: `string`
@@ -2834,7 +2767,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **script**: `struct`
   - **file**: `struct`
@@ -2844,7 +2776,6 @@
     - **algorithm**: `string`
     - **algorithm_id**: `int`
     - **value**: `string`
-  - **hashes**: `array<struct>`
   - **name**: `string`
   - **parent_uid**: `string`
   - **script_content**: `struct`
@@ -2868,10 +2799,10 @@
 
 ### Table: `ssh_activity`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/ssh_activity
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -2923,7 +2854,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **file**: `struct`
   - **name**: `string`
   - **path**: `string`
@@ -2951,7 +2881,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **protocol_ver**: `string`
 - **raw_data**: `variant`
 - **severity**: `string`
@@ -2991,10 +2920,10 @@
 
 ### Table: `user_access`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/user_access
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -3006,7 +2935,6 @@
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
     - **decision**: `string`
-  - **authorizations**: `array<struct>`
   - **idp**: `struct`
     - **domain**: `string`
     - **name**: `string`
@@ -3074,7 +3002,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **message**: `string`
 - **metadata**: `struct`
   - **correlation_uid**: `string`
@@ -3099,7 +3026,6 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **privileges**: `array<string>`
 - **raw_data**: `variant`
 - **resource**: `struct`
@@ -3150,10 +3076,10 @@
 
 ### Table: `vulnerability_finding`
 
-
 **URL:** https://schema.ocsf.io/1.5.0/classes/vulnerability_finding
 
-#### Schema
+#### Table Schema
+
 - **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
 - **action**: `string`
 - **action_id**: `int`
@@ -3173,7 +3099,6 @@
     - **privileges**: `string`
     - **type**: `string`
     - **uid**: `string`
-  - **groups**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **is_compliant**: `boolean`
@@ -3197,7 +3122,6 @@
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **enrichments**: `array<struct>`
 - **finding_info**: `struct`
   - **analytic**: `struct`
     - **name**: `string`
@@ -3221,13 +3145,11 @@
       - **name**: `string`
       - **uid**: `string`
       - **src_url**: `string`
-    - **tactics**: `array<struct>`
     - **technique**: `struct`
       - **name**: `string`
       - **uid**: `string`
       - **src_url**: `string`
     - **version**: `string`
-  - **attacks**: `array<struct>`
   - **created_time**: `timestamp`
   - **data_sources**: `string`
   - **desc**: `string`
@@ -3261,14 +3183,12 @@
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **observables**: `array<struct>`
 - **raw_data**: `variant`
 - **resources**: `array<struct>`
   - **hostname**: `string`
   - **ip**: `string`
   - **name**: `string`
   - **uid**: `string`
-- **resources**: `array<struct>`
 - **severity**: `string`
 - **severity_id**: `int`
 - **start_time**: `timestamp`
@@ -3288,7 +3208,6 @@
       - **overall_score**: `float`
       - **severity**: `string`
       - **src_url**: `string`
-    - **cvss**: `array<struct>`
     - **uid**: `string`
   - **desc**: `string`
   - **exploit_last_seen_time**: `timestamp`
@@ -3296,4 +3215,3 @@
   - **fix_available**: `boolean`
   - **is_exploit_available**: `boolean`
   - **is_fix_available**: `boolean`
-- **vulnerabilities**: `array<struct>`
