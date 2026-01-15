@@ -544,6 +544,326 @@
   - **type_id**: `int`
   - **uid**: `string`
 
+### Table: `authorize_session`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/authorize_session
+
+#### Table Schema
+
+- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
+- **action**: `string`
+- **action_id**: `int`
+- **activity_id**: `int`
+- **activity_name**: `string`
+- **actor**: `struct`
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+- **category_name**: `string`
+- **category_uid**: `int`
+- **class_name**: `string`
+- **class_uid**: `int`
+- **cloud**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **device**: `struct`
+  - **created_time**: `timestamp`
+  - **hostname**: `string`
+  - **hw_info**: `struct`
+    - **bios_date**: `string`
+    - **bios_manufacturer**: `string`
+    - **bios_ver**: `string`
+    - **chassis**: `string`
+    - **cpu_bits**: `int`
+    - **cpu_cores**: `int`
+    - **cpu_count**: `int`
+    - **cpu_speed**: `int`
+    - **cpu_type**: `string`
+    - **desktop_display**: `string`
+    - **keyboard_info**: `string`
+    - **ram_size**: `int`
+    - **serial_number**: `string`
+  - **hypervisor**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **last_seen_time**: `timestamp`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **modified_time**: `timestamp`
+  - **name**: `string`
+  - **network_interfaces**: `array<struct>`
+    - **hostname**: `string`
+    - **ip**: `string`
+    - **mac**: `string`
+    - **name**: `string`
+    - **namespace**: `string`
+    - **subnet_uid**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **org**: `struct`
+    - **name**: `string`
+    - **ou_name**: `string`
+    - **ou_uid**: `string`
+    - **uid**: `string`
+  - **os**: `struct`
+    - **build**: `string`
+    - **country**: `string`
+    - **cpu_bits**: `int`
+    - **edition**: `string`
+    - **lang**: `string`
+    - **name**: `string`
+    - **sp_name**: `string`
+    - **sp_ver**: `int`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **version**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **subnet_uid**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **uid_alt**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **dst_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>`
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **http_request**: `struct`
+  - **http_headers**: `array<struct>`
+    - **name**: `string`
+    - **value**: `string`
+  - **http_method**: `string`
+  - **referrer**: `string`
+  - **url**: `struct`
+    - **hostname**: `string`
+    - **path**: `string`
+    - **port**: `int`
+    - **query_string**: `string`
+    - **scheme**: `string`
+    - **subdomain**: `string`
+    - **text**: `string`
+    - **url_string**: `string`
+  - **user_agent**: `string`
+  - **version**: `string`
+  - **x_forwarded_for**: `array<string>`
+- **message**: `string`
+- **metadata**: `struct`
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>`
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **policy**: `struct`
+  - **desc**: `string`
+  - **group**: `struct`
+    - **desc**: `string`
+    - **name**: `string`
+    - **privileges**: `array<string>`
+    - **type**: `string`
+    - **uid**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **privileges**: `array<string>`
+- **raw_data**: `variant`
+- **resource**: `struct`
+  - **cloud_partition**: `string`
+  - **criticality**: `string`
+  - **data**: `variant`
+  - **group**: `struct`
+    - **desc**: `string`
+    - **name**: `string`
+    - **privileges**: `array<string>`
+    - **type**: `string`
+    - **uid**: `string`
+  - **labels**: `array<string>`
+  - **name**: `string`
+  - **namespace**: `string`
+  - **owner**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+    - **domain**: `string`
+    - **email_addr**: `string`
+    - **full_name**: `string`
+    - **groups**: `array<struct>`
+      - **desc**: `string`
+      - **name**: `string`
+      - **privileges**: `array<string>`
+      - **type**: `string`
+      - **uid**: `string`
+    - **name**: `string`
+    - **org**: `struct`
+      - **name**: `string`
+      - **ou_name**: `string`
+      - **ou_uid**: `string`
+      - **uid**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+  - **region**: `string`
+  - **type**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **service**: `struct`
+  - **name**: `string`
+  - **uid**: `string`
+- **session**: `struct`
+  - **created_time**: `timestamp`
+  - **credential_uid**: `string`
+  - **expiration_reason**: `string`
+  - **expiration_time**: `timestamp`
+  - **is_mfa**: `boolean`
+  - **is_remote**: `boolean`
+  - **is_vpn**: `boolean`
+  - **issuer**: `string`
+  - **terminal**: `string`
+  - **uid**: `string`
+  - **uid_alt**: `string`
+  - **uuid**: `string`
+- **severity**: `string`
+- **severity_id**: `int`
+- **src_endpoint**: `struct`
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string`
+- **status_code**: `string`
+- **status_detail**: `string`
+- **status_id**: `int`
+- **time**: `timestamp`
+- **timezone_offset**: `int`
+- **type_name**: `string`
+- **type_uid**: `bigint`
+- **unmapped**: `variant`
+- **user**: `struct`
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+
 ### Table: `data_security_finding`
 
 **URL:** https://schema.ocsf.io/1.5.0/classes/data_security_finding

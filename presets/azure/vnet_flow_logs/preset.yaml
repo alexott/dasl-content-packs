@@ -37,219 +37,189 @@ silver:
           expr: try_variant_get(data, '$.targetResourceID', 'string')
         - name: operation_name
           expr: try_variant_get(data, '$.operationName', 'string')
-        - name: flows
-          expr: "try_variant_get(data, '$.flowRecords.flows', 'array<STRUCT<aclID: STRING, flowGroups: ARRAY<STRUCT<flowTuples: ARRAY<STRING>, rule: STRING>>>>')"
+        - name: flow_acl_id
+          from: t_flow_acl_id
+        - name: flow_group_rule
+          from: t_flow_group_rule
+        - name: flow_group_tuple
+          from: t_flow_group_tuple
       utils:
+        temporaryFields:
+          - name: flows
+            expr: "explode(try_variant_get(data, '$.flowRecords.flows', 'array<STRUCT<aclID: STRING, flowGroups: ARRAY<STRUCT<flowTuples: ARRAY<STRING>, rule: STRING>>>>'))"
+          - name: t_flow_acl_id
+            alias: flows.aclID
+          - name: t_flow_group
+            expr: explode(flows.flowGroups)
+          - name: t_flow_group_rule
+            expr: t_flow_group.rule
+          - name: t_flow_group_tuple_csv
+            expr: explode(t_flow_group.flowTuples)
+          - name: t_flow_group_tuple
+            expr: "from_csv(t_flow_group_tuple_csv, 'ts long,src_ip string, dest_ip string, src_port int,dest_port int, proto string, flow_direction string, flow_state string, flow_encryption string, packets_sent int, bytes_sent long, packets_received int, bytes_received long')"
         unreferencedColumns:
           preserve: true
           omitColumns:
             - data
-# gold:
-#   - name: network_activity
-#     input: azure_vnet_flow_logs
-#     fields:
-#       - name: activity_id
-#         expr: |
-#           cast(
-#             CASE
-#               WHEN conn_state IN ('SF', 'RSTO', 'RSTR', 'RSTRH', 'SH', 'SHR') THEN 2
-#               WHEN conn_state = 'S0' THEN 4
-#               WHEN conn_state = 'REJ' THEN 5
-#               ELSE 6
-#             END
-#           as int)
-#       - name: activity_name
-#         expr: |
-#           CASE
-#               WHEN conn_state IN ('SF', 'RSTO', 'RSTR', 'RSTRH', 'SH', 'SHR') THEN 'Close'
-#               WHEN conn_state = 'S0' THEN 'Fail'
-#               WHEN conn_state = 'REJ' THEN 'Refuse'
-#               ELSE 'Traffic'
-#           END
-#       - name: category_uid
-#         expr: CAST('4' AS INT)
-#       - name: category_name
-#         literal: Network Activity
-#       - name: class_uid
-#         expr: CAST('4001' AS INT)
-#       - name: class_name
-#         literal: Network Activity
-#       - name: severity_id
-#         expr: CAST('1' AS INT)
-#       - name: severity
-#         literal: Informational
-#       - name: type_uid
-#         expr: CAST(class_uid * 100 + activity_id AS BIGINT)
-#       - name: type_name
-#         expr: "concat('Network Activity: ', activity_name)"
-#       - name: time
-#         from: time
-#       - name: start_time
-#         from: time
-#       - name: metadata.product.name
-#         literal: Zeek Conn
-#       - name: metadata.product.vendor_name
-#         literal: Zeek
-#       - name: metadata.uid
-#         expr: data:uid::STRING
-#       - name: metadata.processed_time
-#         expr: current_timestamp()
-#       - name: metadata.logged_time
-#         from: time
-#       - name: metadata.log_name
-#         literal: conn
-#       - name: metadata.log_provider
-#         literal: zeek
-#       - name: src_endpoint.ip
-#         from: id_origin_host
-#       - name: dst_endpoint.ip
-#         from: id_response_host
-#       - name: src_endpoint.port
-#         from: id_origin_port
-#       - name: dst_endpoint.port
-#         from: id_response_port
-#       - name: connection_info.uid
-#         expr: data:uid::STRING
-#       - name: connection_info.protocol_name
-#         expr: lower(data:proto::STRING)
-#       - name: connection_info.flag_history
-#         expr: data:history::STRING
-#       - name: connection_info.protocol_num
-#         expr: |
-#           CAST((
-#             CASE WHEN LOWER(data:proto::STRING) = 'icmp' THEN 1
-#             WHEN LOWER(data:proto::STRING) = 'tcp' THEN 6
-#             WHEN LOWER(data:proto::STRING) = 'udp' THEN 17
-#             ELSE NULL END)
-#           AS INT)
-#       - name: connection_info.direction_id
-#         expr: |
-#           CASE
-#             WHEN
-#               (
-#                 id_origin_host RLIKE '^10\\.'
-#                 OR id_origin_host RLIKE '^192\\.168\\.'
-#                 OR id_origin_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#               AND
-#               (
-#                 id_response_host RLIKE '^10\\.'
-#                 OR id_response_host RLIKE '^192\\.168\\.'
-#                 OR id_response_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#             THEN 3
-
-#             WHEN
-#               (
-#                 id_origin_host RLIKE '^10\\.'
-#                 OR id_origin_host RLIKE '^192\\.168\\.'
-#                 OR id_origin_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#               AND NOT
-#               (
-#                 id_response_host RLIKE '^10\\.'
-#                 OR id_response_host RLIKE '^192\\.168\\.'
-#                 OR id_response_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#             THEN 2
-
-#             WHEN
-#               NOT
-#               (
-#                 id_origin_host RLIKE '^10\\.'
-#                 OR id_origin_host RLIKE '^192\\.168\\.'
-#                 OR id_origin_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#               AND
-#               (
-#                 id_response_host RLIKE '^10\\.'
-#                 OR id_response_host RLIKE '^192\\.168\\.'
-#                 OR id_response_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#             THEN 1
-
-#             ELSE 0
-#           END
-#       - name: connection_info.direction
-#         expr: |
-#           CASE
-#             WHEN
-#               (
-#                 id_origin_host RLIKE '^10\\.'
-#                 OR id_origin_host RLIKE '^192\\.168\\.'
-#                 OR id_origin_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#               AND
-#               (
-#                 id_response_host RLIKE '^10\\.'
-#                 OR id_response_host RLIKE '^192\\.168\\.'
-#                 OR id_response_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#             THEN 'Lateral'
-
-#             WHEN
-#               (
-#                 id_origin_host RLIKE '^10\\.'
-#                 OR id_origin_host RLIKE '^192\\.168\\.'
-#                 OR id_origin_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#               AND NOT
-#               (
-#                 id_response_host RLIKE '^10\\.'
-#                 OR id_response_host RLIKE '^192\\.168\\.'
-#                 OR id_response_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#             THEN 'Outbound'
-
-#             WHEN
-#               NOT
-#               (
-#                 id_origin_host RLIKE '^10\\.'
-#                 OR id_origin_host RLIKE '^192\\.168\\.'
-#                 OR id_origin_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#               AND
-#               (
-#                 id_response_host RLIKE '^10\\.'
-#                 OR id_response_host RLIKE '^192\\.168\\.'
-#                 OR id_response_host RLIKE '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.'
-#               )
-#             THEN 'Inbound'
-
-#             ELSE 'Unknown'
-#           END
-
-#       - name: status
-#         expr: |
-#           CASE
-#             WHEN activity_id IN ('4', '5') THEN 'Failure'
-#             WHEN activity_id = '0' THEN 'Unknown'
-#             WHEN activity_id = '99' THEN 'Other'
-#             ELSE 'Success'
-#           END
-#       - name: status_id
-#         expr: |
-#           CASE
-#             WHEN activity_id IN ('4', '5') THEN 2
-#             WHEN activity_id = '0' THEN 0
-#             WHEN activity_id = '99' THEN 99
-#             ELSE 1
-#           END
-#       - name: traffic.bytes_in
-#         expr: data:resp_bytes::BIGINT
-#       - name: traffic.bytes_out
-#         expr: data:orig_bytes::BIGINT
-#       - name: traffic.bytes
-#         expr: data:resp_bytes::BIGINT + data:orig_bytes::BIGINT
-#       - name: traffic.packets_in
-#         expr: data:resp_pkts::BIGINT
-#       - name: traffic.packets_out
-#         expr: data:orig_pkts::BIGINT
-#       - name: traffic.packets
-#         expr: data:orig_pkts::BIGINT + data:resp_pkts::BIGINT
-#       - name: src_endpoint.mac
-#         expr: data:orig_l2_addr::STRING
-#       - name: dst_endpoint.mac
-#         expr: data:resp_l2_addr::STRING
-#       - name: raw_data
-#         from: data
+gold:
+  - name: network_activity
+    input: azure_vnet_flow_logs
+    fields:
+      # Activity classification based on flow_state:
+      # B = Begin (Open), C = Continue (Traffic), E = End (Close), D = Deny (Refuse)
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN flow_group_tuple.flow_state = 'B' THEN 1
+              WHEN flow_group_tuple.flow_state = 'E' THEN 2
+              WHEN flow_group_tuple.flow_state = 'D' THEN 5
+              ELSE 6
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_state = 'B' THEN 'Open'
+            WHEN flow_group_tuple.flow_state = 'E' THEN 'Close'
+            WHEN flow_group_tuple.flow_state = 'D' THEN 'Refuse'
+            ELSE 'Traffic'
+          END
+      - name: category_uid
+        expr: CAST(4 AS INT)
+      - name: category_name
+        literal: Network Activity
+      - name: class_uid
+        expr: CAST(4001 AS INT)
+      - name: class_name
+        literal: Network Activity
+      - name: severity_id
+        expr: CAST(1 AS INT)
+      - name: severity
+        literal: Informational
+      - name: type_uid
+        expr: CAST(4001 * 100 + activity_id AS BIGINT)
+      - name: type_name
+        expr: "concat('Network Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: start_time
+        expr: cast(flow_group_tuple.ts / 1000.0 as timestamp)
+      - name: metadata.product.name
+        literal: Azure VNet Flow Logs
+      - name: metadata.product.vendor_name
+        literal: Microsoft
+      - name: metadata.uid
+        from: flow_log_guid
+      - name: metadata.processed_time
+        expr: current_timestamp()
+      - name: metadata.logged_time
+        from: time
+      - name: metadata.log_name
+        literal: vnet_flow_logs
+      - name: metadata.log_provider
+        literal: azure
+      - name: metadata.log_version
+        expr: CAST(flow_log_version AS STRING)
+      - name: cloud.provider
+        literal: Azure
+      # Extract subscription ID from flow_log_resource_id
+      # Format: /SUBSCRIPTIONS/{subscription-id}/RESOURCEGROUPS/...
+      - name: cloud.account.uid
+        expr: |
+          lower(regexp_extract(flow_log_resource_id, '(?i)/subscriptions/([^/]+)/', 1))
+      # Source endpoint - vpc_uid is the VNet resource ID
+      - name: src_endpoint.vpc_uid
+        from: target_resource_id
+      # Source endpoint
+      - name: src_endpoint.ip
+        expr: flow_group_tuple.src_ip
+      - name: src_endpoint.port
+        expr: flow_group_tuple.src_port
+      - name: src_endpoint.mac
+        from: mac_address
+      # Destination endpoint
+      - name: dst_endpoint.ip
+        expr: flow_group_tuple.dest_ip
+      - name: dst_endpoint.port
+        expr: flow_group_tuple.dest_port
+      # Connection info - protocol is IANA assigned number
+      - name: connection_info.protocol_num
+        expr: CAST(flow_group_tuple.proto AS INT)
+      - name: connection_info.protocol_name
+        expr: |
+          CASE
+            WHEN flow_group_tuple.proto = '1' THEN 'icmp'
+            WHEN flow_group_tuple.proto = '6' THEN 'tcp'
+            WHEN flow_group_tuple.proto = '17' THEN 'udp'
+            ELSE flow_group_tuple.proto
+          END
+      # Direction from Azure flow logs: I = Inbound, O = Outbound
+      - name: connection_info.direction_id
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_direction = 'I' THEN 1
+            WHEN flow_group_tuple.flow_direction = 'O' THEN 2
+            ELSE 0
+          END
+      - name: connection_info.direction
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_direction = 'I' THEN 'Inbound'
+            WHEN flow_group_tuple.flow_direction = 'O' THEN 'Outbound'
+            ELSE 'Unknown'
+          END
+      # Status based on flow state
+      - name: status
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_state = 'D' THEN 'Failure'
+            ELSE 'Success'
+          END
+      - name: status_id
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_state = 'D' THEN 2
+            ELSE 1
+          END
+      # Traffic statistics
+      - name: traffic.bytes_out
+        expr: flow_group_tuple.bytes_sent
+      - name: traffic.bytes_in
+        expr: flow_group_tuple.bytes_received
+      - name: traffic.bytes
+        expr: flow_group_tuple.bytes_sent + flow_group_tuple.bytes_received
+      - name: traffic.packets_out
+        expr: CAST(flow_group_tuple.packets_sent AS BIGINT)
+      - name: traffic.packets_in
+        expr: CAST(flow_group_tuple.packets_received AS BIGINT)
+      - name: traffic.packets
+        expr: CAST(flow_group_tuple.packets_sent + flow_group_tuple.packets_received AS BIGINT)
+      # Policy info from ACL/rule
+      - name: policy.name
+        from: flow_group_rule
+      - name: policy.uid
+        from: flow_acl_id
+      # Disposition based on flow state and encryption
+      - name: disposition_id
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_state = 'D' THEN 2
+            ELSE 1
+          END
+      - name: disposition
+        expr: |
+          CASE
+            WHEN flow_group_tuple.flow_state = 'D' THEN 'Blocked'
+            ELSE 'Allowed'
+          END
+      # Unmapped fields for additional context
+      - name: unmapped
+        expr: |
+          to_variant_object(named_struct(
+            'flow_encryption', flow_group_tuple.flow_encryption,
+            'flow_log_resource_id', flow_log_resource_id,
+            'target_resource_id', target_resource_id,
+            'category', category,
+            'operation_name', operation_name
+          ))
