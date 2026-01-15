@@ -1,17 +1,18 @@
 # Zeek presets
 
-This preset directory contains Zeek data sources ([Zeek logs in JSON format](https://docs.zeek.org/en/master/log-formats.html#zeek-json-format-logs)). Current supported data sources:
-- http
+This preset directory contains Zeek data sources ([Zeek logs in JSON format](https://docs.zeek.org/en/master/log-formats.html#zeek-json-format-logs)). Currently supported data sources:
 
-## HTTP
+- [conn](https://docs.zeek.org/en/master/logs/conn.html)
 
-Assumed data format: json
+## Conn
+
+Assumed data format: json lines
 
 Silver tables:
-- zeek_http
+- zeek_conn
 
 Gold tables:
-- http_activity
+- network_activity
 
 
 

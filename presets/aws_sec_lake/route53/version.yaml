@@ -2,3 +2,6 @@ versions:
   - versionNumber: 1
     changes: Initial commit of AWS Security Lake Route53 Resolver query log presets
     commit: df5cd227f8e31d20ace59be0051618bd4e41838d
+  - versionNumber: 2
+    changes: Updated preset to new OCSF-Lite schema.
+    commit: 1c0019982e2ac19e6dad4c24a1e13f7e5fca6ef4

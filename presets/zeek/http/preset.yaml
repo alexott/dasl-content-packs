@@ -1,38 +1,42 @@
-name: internal_zeek_http
-description: "A preset for consuming Zeek HTTP logs"
+name: zeek_http
+description: "Zeek HTTP logs"
 title: "Zeek HTTP"
-iconURL: "https://docs.zeek.org/en/master/_images/zeek-logo-text.png"
-author: "Alex Ott <alexey.ott@databricks.com>"
+iconURL: "https://raw.githubusercontent.com/antimatterhq/dasl-content-packs/refs/heads/dasl-v1.0/presets/zeek/http/icon.png"
+author: "Antimatter"
 autoloader:
-  format: jsonl
-  cloudFiles:
-    schemaHints: "`id.orig_p` int, `id.resp_p` int, ts double, status_code int"
+  format: json
+
 bronze:
+  loadAsSingleVariant: true
   preTransform:
     -
-      - "*"
-      - cast(ts as timestamp) as time
+      - "data"
+      - cast(data:ts as timestamp) as time
+      - cast('zeek' as STRING) as source
+      - cast('http' as STRING) as sourcetype
 silver:
   transform:
     - name: zeek_http
       fields:
         - name: id_origin_host
-          from: "`id.orig_h`"
+          expr: try_cast(data:['id.orig_h'] as STRING)
         - name: id_origin_port
-          from: "`id.orig_p`"
+          expr: try_cast(data:['id.orig_p'] as INT)
         - name: id_response_host
-          from: "`id.resp_h`"
+          expr: try_cast(data:['id.resp_h'] as STRING)
         - name: id_response_port
-          from: "`id.resp_p`"
+          expr: try_cast(data:['id.resp_p'] as INT)
+        - name: method
+          expr: data:method::STRING
       utils:
         unreferencedColumns:
           preserve: true
           omitColumns:
-            - "`id.resp_h`"
-            - "`id.orig_h`"
-            - ts
-            - "`id.resp_p`"
-            - "`id.orig_p`"
+            - data:['id.resp_h']
+            - data:['id.orig_h']
+            - data:ts
+            - data:['id.resp_p']
+            - data:['id.orig_p']
 gold:
   - name: http_activity
     input: zeek_http
@@ -50,9 +54,9 @@ gold:
       - name: class_name
         literal: HTTP Activity
       - name: severity_id
-        expr: CAST('0' AS INT)
+        expr: CAST('1' AS INT)
       - name: severity
-        literal: Unknown
+        literal: Informational
       - name: type_uid
         expr: CAST((400200 + activity_id) AS BIGINT)
       - name: type_name
@@ -60,31 +64,37 @@ gold:
       - name: time
         from: time
       - name: http_request.http_method
-        from: method
+        expr: method
       - name: http_request.user_agent
-        from: user_agent
-      # - name: http_request.uid
-      #   from: uid
+        expr: data:user_agent::STRING
       - name: http_request.body_length
-        expr: cast(request_body_len as int)  # temporary workaround until table is fixed
+        expr: cast(data:request_body_len as int)
       - name: http_request.version
-        from: version
+        expr: data:version::STRING
       - name: http_request.url
-        from: uri
+        expr: data:uri::STRING
       - name: http_request.referrer
-        from: referrer
+        expr: data:referrer::STRING
       - name: http_response.code
-        from: status_code
+        expr: data:status_code::INT
       - name: http_response.body_length
-        expr: cast(response_body_len as int)  # temporary workaround until table is fixed
+        expr: cast(data:response_body_len as int)
       - name: metadata.product.vendor_name
         literal: Zeek
       - name: metadata.product.name
         literal: Zeek HTTP
       - name: metadata.uid
-        from: uid
+        expr: data:uid::STRING
+      - name: metadata.processed_time
+        expr: current_timestamp()
+      - name: metadata.logged_time
+        from: time
+      - name: metadata.log_name
+        literal: http
+      - name: metadata.log_provider
+        literal: zeek
       - name: src_endpoint.hostname
-        from: host # is it actual http host, or host where Zeek is running?
+        expr: data:host::STRING
       - name: src_endpoint.ip
         from: id_origin_host
       - name: dst_endpoint.ip
@@ -93,3 +103,23 @@ gold:
         from: id_origin_port
       - name: dst_endpoint.port
         from: id_response_port
+      - name: raw_data
+        from: data
+      - name: status_id
+        expr: |
+          CASE
+            WHEN data:status_code::INT BETWEEN 100 AND 399 THEN 1
+            WHEN data:status_code::INT BETWEEN 400 AND 599 THEN 2
+            ELSE 0                                         
+          END
+      - name: status
+        expr: |
+          CASE
+            WHEN data:status_code::INT BETWEEN 100 AND 399 THEN 'Success'
+            WHEN data:status_code::INT BETWEEN 400 AND 599 THEN 'Failure'
+            ELSE 'Unknown'
+          END
+      - name: status_code
+        expr: data:status_code::STRING
+      - name: status_detail
+        expr: data:status_msg::STRING
