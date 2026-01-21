@@ -144,14 +144,16 @@ gold:
               ELSE '0'
             END
           AS INT)
+      - name: raw_data
+        from: data
   - name: file_activity
     input: crowdstrike
     filter: |
       event_name IN (
-        'FileCreateInfo', 'FileDeleteInfo', 'FileOpenInfo', 'FileRenameInfo',
+        'FileCreateInfo', 'FileDeleteInfo', 'FileOpenInfo', 'FileRenameInfo', 'FsVolumeMounted'
         'PackedExecutableWritten', 'NewExecutableWritten', 'NewExecutableRenamed',
         'NewScriptWritten', 'ExecutableDeleted', 'CriticalFileAccessed', 'CriticalFileModified'
-      ) OR endswith(event_name, 'FileWritten')
+      'FsVolumeUnmounted') OR endswith(event_name, 'FileWritten')
     fields:
       - name: activity_id
         expr: |
@@ -162,17 +164,21 @@ gold:
               WHEN event_name IN ('FileRenameInfo', 'NewExecutableRenamed') THEN '5'
               WHEN event_name IN ('FileDeleteInfo', 'ExecutableDeleted') THEN '4'
               WHEN endswith(event_name, 'Written') or event_name IN ('CriticalFileModified') THEN '3'
+              WHEN event_name = 'FsVolumeMounted' THEN '12'
+              WHEN event_name = 'FsVolumeUnmounted' THEN '13'
               ELSE '0'
             END
           AS INT)
       - name: activity_name
         expr: |
           CASE
-            WHEN activity_id = '1' THEN 'Create'
-            WHEN activity_id = '4' THEN 'Delete'
-            WHEN activity_id = '5' THEN 'Rename'
-            WHEN activity_id = '3' THEN 'Update'
-            WHEN activity_id = '14' THEN 'Open'
+            WHEN activity_id = 1 THEN 'Create'
+            WHEN activity_id = 3 THEN 'Update'
+            WHEN activity_id = 4 THEN 'Delete'
+            WHEN activity_id = 5 THEN 'Rename'
+            WHEN activity_id = 12 THEN 'Mount'
+            WHEN activity_id = 13 THEN 'Unmount'
+            WHEN activity_id = 14 THEN 'Open'
             ELSE 'Unknown'
           END
       - name: category_uid
@@ -195,6 +201,10 @@ gold:
         from: time
       - name: metadata
         from: metadata
+      - name: device.ip
+        expr: aip
+      - name: device.uid
+        expr: aid
       - name: actor.user.name
         expr: try_variant_get(data, '$.UserName', 'string')
       - name: actor.user.uid
@@ -204,9 +214,19 @@ gold:
       - name: actor.process.pid
         expr: try_cast(context_process_id as int)
       - name: file.path
-        expr: try_variant_get(data, '$.TargetFileName', 'string')
+        expr: |
+          coalesce(
+            try_variant_get(data, '$.TargetFileName', 'string'),
+            try_variant_get(data, '$.VolumeMountPoint', 'string')
+          )
       - name: file.name
-        expr: "regexp_extract(try_variant_get(data, '$.TargetFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)"
+        expr: |
+          coalesce(
+            regexp_extract(try_variant_get(data, '$.TargetFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1), 
+            try_variant_get(data, '$.VolumeName', 'string')
+          )
+      - name: raw_data
+        from: data
       # - name: file.uid
       #   expr: try_variant_get(data, '$.FileIdentifier', 'string')
       # - name: file.attributes
@@ -297,6 +317,8 @@ gold:
           END
       - name: is_remote
         expr: try_variant_get(data, '$.RemoteAccount', 'string') = '1'
+      - name: raw_data
+        from: data
   - name: kernel_extension_activity
     input: crowdstrike
     filter: |
@@ -419,6 +441,8 @@ gold:
           )
       - name: rcode_id
         expr: try_variant_get(data, '$.QueryStatus', 'int')  # we need to double check it as CRWD docs shows other values
+      - name: raw_data
+        from: data
   - name: process_activity
     input: crowdstrike
     filter: |
@@ -486,12 +510,15 @@ gold:
         expr: try_variant_get(data, '$.RawProcessId', 'int')
       - name: process.name
         expr: "coalesce(try_variant_get(data, '$.ImageBaseName', 'string'), try_variant_get(data, '$.ServiceDisplayName', 'string'), regexp_extract(coalesce(try_variant_get(data, '$.ImageFileName', 'string'), try_variant_get(data, '$.TargetFileName', 'string'), try_variant_get(data, '$.InjecteeImageFileName', 'string')), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1))"
-      - name: raw_data
-        from: data
       - name: device.name
         expr: try_variant_get(data, '$.ComputerName', 'string')
       - name: device.ip
-        expr: coalesce(try_variant_get(data, '$.LocalAddressIP4', 'string'), try_variant_get(data, '$.LocalAddressIP6', 'string'), aip)
+        expr: |
+          coalesce(
+            try_variant_get(data, '$.LocalAddressIP4', 'string'),
+            try_variant_get(data, '$.LocalAddressIP6', 'string'),
+            aip
+          )
       - name: device.uid
         from: aid
       - name: actor.process.name
@@ -500,6 +527,8 @@ gold:
         expr: try_variant_get(data, '$.InjectorImageFileName', 'string')
       - name: actor.process.uid
         expr: try_variant_get(data, '$.TargetProcessId', 'string')
+      - name: raw_data
+        from: data
       # - name:
       #   expr: 
       # - name:

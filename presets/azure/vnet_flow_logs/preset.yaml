@@ -1,4 +1,4 @@
-name: azure_vnet_flow_logs
+name: internal_azure_vnet_flow_logs
 description: "Azure VNet Flow Logs"
 title: "Azure VNet Flow Logs"
 iconURL: "https://raw.githubusercontent.com/antimatterhq/dasl-content-packs/refs/heads/dasl-v1.0/presets/zeek/conn/icon.png"
