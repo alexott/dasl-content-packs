@@ -11,6 +11,7 @@ bronze:
   preTransform:
     -
       - "*"
+      - current_timestamp() as ingest_time
       - coalesce(cast(try_variant_get(data, '$.ContextTimeStamp', 'double') as timestamp), try_variant_get(data, '$.timestamp', 'timestamp'), cast((try_variant_get(data, '$.timestamp', 'long') / 1000.0) as timestamp), cast((try_variant_get(data, '$.UTCTimestamp', 'long') / 1000.0) as timestamp), current_timestamp()) as time
 silver:
   transform:
@@ -51,6 +52,10 @@ silver:
           expr: try_variant_get(data, '$.cid', 'string')
         - name: metadata.uid
           expr: try_variant_get(data, '$.id', 'string')
+        - name: metadata.processed_time
+          from: ingest_time
+        - name: metadata.logged_time
+          expr: coalesce(try_variant_get(data, '$.timestamp', 'timestamp'), cast((try_variant_get(data, '$.timestamp', 'long') / 1000.0) as timestamp))
         - name: event_name
           expr: coalesce(try_variant_get(data, '$.event_simpleName', 'string'), try_variant_get(data, '$.EventType', 'string'), try_variant_get(data, '$.event_type', 'string'))
         - name: metadata.event_code
@@ -153,16 +158,18 @@ gold:
         'FileCreateInfo', 'FileDeleteInfo', 'FileOpenInfo', 'FileRenameInfo', 'FsVolumeMounted'
         'PackedExecutableWritten', 'NewExecutableWritten', 'NewExecutableRenamed',
         'NewScriptWritten', 'ExecutableDeleted', 'CriticalFileAccessed', 'CriticalFileModified'
-      'FsVolumeUnmounted') OR endswith(event_name, 'FileWritten')
+        'FsVolumeUnmounted', 'DirectoryCreate', 'ProcessSelfDeleted', 'VolumeSnapshotCreated', 
+        'VolumeSnapshotDeleted', 'RansomwareOpenFile') 
+      OR endswith(event_name, 'FileWritten')
     fields:
       - name: activity_id
         expr: |
           CAST(
             CASE
-              WHEN event_name IN ('FileCreateInfo') THEN '1'
-              WHEN event_name IN ('FileOpenInfo', 'CriticalFileAccessed') THEN '14'
+              WHEN event_name IN ('FileCreateInfo', 'DirectoryCreate', 'VolumeSnapshotCreated') THEN '1'
+              WHEN event_name IN ('FileOpenInfo', 'CriticalFileAccessed', 'RansomwareOpenFile') THEN '14'
               WHEN event_name IN ('FileRenameInfo', 'NewExecutableRenamed') THEN '5'
-              WHEN event_name IN ('FileDeleteInfo', 'ExecutableDeleted') THEN '4'
+              WHEN event_name IN ('FileDeleteInfo', 'ExecutableDeleted', 'ProcessSelfDeleted', 'VolumeSnapshotDeleted') THEN '4'
               WHEN endswith(event_name, 'Written') or event_name IN ('CriticalFileModified') THEN '3'
               WHEN event_name = 'FsVolumeMounted' THEN '12'
               WHEN event_name = 'FsVolumeUnmounted' THEN '13'
@@ -240,7 +247,7 @@ gold:
       # - name: file.size
       #   expr: try_variant_get(data, '$.Size', 'long')
   - name: authentication
-    input: crowdstrike
+    input: crowdstrike # TODO: add UserIdentity event
     filter: |
       event_name IN (
         'UserLogoff', 'UserLogon', 'UserLogonFailed', 'UserLogonFailed2'
@@ -323,14 +330,14 @@ gold:
     input: crowdstrike
     filter: |
       event_name IN (
-        'KextLoad', 'KextUnload', 'KernelModeLoadImage'
+        'KextLoad', 'KextUnload', 'KernelModeLoadImage', 'DriverLoad'
       )
     fields:
       - name: activity_id
         expr: |
           CAST(
             CASE
-              WHEN event_name IN ('KextLoad', 'KernelModeLoadImage') THEN '1'
+              WHEN event_name IN ('KextLoad', 'KernelModeLoadImage', 'DriverLoad') THEN '1'
               WHEN event_name IN ('KextUnload') THEN '2'
               ELSE '0'
             END
@@ -360,16 +367,35 @@ gold:
         expr: "concat('Kernel Extension Activity: ', activity_name)"
       - name: time
         from: time
-      - name: metadata
-        from: metadata
+      # TODO: this is temporary, until we fix metadata structure for kernel actitivy
+      # - name: metadata
+      #   from: metadata
+      - name: metadata.product.vendor_name
+        literal: Crowdstrike
+      - name: metadata.product.name
+        literal: Crowdstrike Falcon
+      - name: metadata.product.version
+        expr: try_variant_get(data, '$.ConfigBuild', 'string')
+      - name: metadata.tenant_uid
+        expr: try_variant_get(data, '$.cid', 'string')
+      - name: metadata.uid
+        expr: try_variant_get(data, '$.id', 'string')
       - name: actor.process.tid
         expr: try_cast(context_thread_id as int)
       - name: actor.process.pid
         expr: try_cast(context_process_id as int)
       - name: driver.file.path
-        expr: coalesce(try_variant_get(data, '$.BundleID', 'string'), try_variant_get(data, '$.ImageFileName', 'string'))
+        expr: |
+          coalesce(
+            try_variant_get(data, '$.BundleID', 'string'),
+            try_variant_get(data, '$.ImageFileName', 'string')
+          )
       - name: driver.file.name
-        expr: "coalesce(try_variant_get(data, '$.BundleID', 'string'), regexp_extract(try_variant_get(data, '$.ImageFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1))"
+        expr: |
+          coalesce(
+            try_variant_get(data, '$.BundleID', 'string'), 
+            regexp_extract(try_variant_get(data, '$.ImageFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)
+          )
   - name: dns_activity
     input: crowdstrike
     filter: |
@@ -430,6 +456,8 @@ gold:
             WHEN try_variant_get(data, '$.RequestType', 'int') = 255 THEN 'ANY'
             ELSE 'UNKNOWN'
           END
+      - name: src_endpoint.ip
+        from: aip
       - name: dst_endpoint.ip
         expr: try_variant_get(data, '$.RespondingDnsServer', 'string')
       - name: answers
@@ -449,7 +477,8 @@ gold:
       event_name IN (
         'SyntheticProcessRollup2', 'ProcessRollup2', 'CreateProcessArgs', 'EndOfProcess',
         'ProcessInjection', 'ProcessBlocked', 'TerminateProcess', 'ServiceStarted',
-        'HostedServiceStarted', 'HostedServiceStopped', 'KernelServiceStarted'
+        'HostedServiceStarted', 'HostedServiceStopped', 'KernelServiceStarted',
+        'PrivilegedProcessHandleFromUnsignedModule'
       )
     fields:
       - name: activity_id
@@ -495,7 +524,11 @@ gold:
       # - name: start_time
       #   expr: cast(try_variant_get(data, '$.ProcessStartTime', 'double') as timestamp)
       - name: process.cmd_line
-        expr: coalesce(try_variant_get(data, '$.CommandLine', 'string'), try_variant_get(data, '$.ImageFileName', 'string'))
+        expr: |
+          coalesce(
+            try_variant_get(data, '$.CommandLine', 'string'), 
+            try_variant_get(data, '$.ImageFileName', 'string')
+          )
       - name: process.session.created_time
         expr: cast(try_variant_get(data, '$.ProcessStartTime', 'double') as timestamp)
       - name: process.session.uid
@@ -531,6 +564,63 @@ gold:
         from: data
       # - name:
       #   expr: 
+  - name: scheduled_job_activity
+    input: crowdstrike
+    filter: |
+      startswith(event_name, 'ScheduledTask')
+    fields:
+      - name: activity_id
+        expr: |
+          CAST(
+            CASE
+              WHEN event_name IN ('ScheduledTaskDeleted') THEN 3
+              WHEN event_name IN ('ScheduledTaskModified') THEN 2
+              WHEN event_name IN ('ScheduledTaskRegistered') THEN 1
+              ELSE 0
+            END
+          AS INT)
+      - name: activity_name
+        expr: |
+          CASE
+            WHEN activity_id = 1 THEN 'Create'
+            WHEN activity_id = 2 THEN 'Update'
+            WHEN activity_id = 3 THEN 'Delete'
+            ELSE 'Unknown'
+          END
+      - name: category_uid
+        expr: CAST('1' AS INT)
+      - name: category_name
+        literal: System Activity
+      - name: class_uid
+        expr: CAST('1006' AS INT)
+      - name: class_name
+        literal: Process Activity
+      - name: severity_id
+        expr: CAST('0' AS INT)
+      - name: severity
+        literal: Unknown
+      - name: type_uid
+        expr: cast(class_uid*100 + activity_id as long)
+      - name: type_name
+        expr: "concat('System Activity: ', activity_name)"
+      - name: time
+        from: time
+      - name: metadata
+        from: metadata
+      - name: job.name
+        expr: try_variant_get(data, '$.TaskName', 'string')
+      - name: job.cmd_line
+        expr: |
+          concat_ws(' ', try_variant_get(data, '$.TaskExecCommand', 'string'),
+            try_variant_get(data, '$.TaskExecArguments', 'string'))
+      - name: job.file.path
+        expr: try_variant_get(data, '$.TaskExecCommand', 'string')
+      - name: job.file.name
+        expr: "regexp_extract(try_variant_get(data, '$.TaskExecCommand', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)"
+      - name: actor.user.name
+        expr: try_variant_get(data, '$.UserName', 'string')
+      - name: raw_data
+        from: data
       # - name:
       #   expr: 
       # - name:
@@ -541,4 +631,7 @@ gold:
       #   expr: 
       # - name:
       #   expr: 
+      # - name:
+      #   expr: 
+          
           
