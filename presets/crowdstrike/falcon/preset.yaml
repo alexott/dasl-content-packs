@@ -8,11 +8,22 @@ autoloader:
   format: jsonl
 bronze:
   loadAsSingleVariant: true
+  # This is for normal FDR logs. Comment it if data is transferred with Cribl
   preTransform:
     -
       - "*"
       - current_timestamp() as ingest_time
       - coalesce(cast(try_variant_get(data, '$.ContextTimeStamp', 'double') as timestamp), try_variant_get(data, '$.timestamp', 'timestamp'), cast((try_variant_get(data, '$.timestamp', 'long') / 1000.0) as timestamp), cast((try_variant_get(data, '$.UTCTimestamp', 'long') / 1000.0) as timestamp), current_timestamp()) as time
+  # Uncomment this if data is transferred with Cribl (and comment previous section)
+  # preTransform:
+  #   -
+  #     - "try_parse_json(_raw) as data"
+  #     - "cast(_time as timestamp) as cribl_time"
+  #     - current_timestamp() as ingest_time
+  #     - if(isnull(data), _raw, cast(null as string)) as _raw_bad
+  #   -
+  #     - "*"
+  #     - coalesce(cast(try_variant_get(data, '$.ContextTimeStamp', 'double') as timestamp), try_variant_get(data, '$.timestamp', 'timestamp'), cast((try_variant_get(data, '$.timestamp', 'long') / 1000.0) as timestamp), cast((try_variant_get(data, '$.UTCTimestamp', 'long') / 1000.0) as timestamp), current_timestamp()) as time
 silver:
   transform:
     - name: crowdstrike
