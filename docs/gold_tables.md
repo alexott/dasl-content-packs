@@ -1,4 +1,4 @@
-## Schema: `dasl_1_0_field_env.gold`
+## Schema: `reyden_test.lakewatch_gold`
 
 ### Table: `account_change`
 
@@ -6,13 +6,13 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity initiator identity and runtime context for account changes. Key fields: user.uid, user.name, app_uid, process.cmd_line, idp.protocol_name. Security use: attribute actions to principals and sessions.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -48,13 +48,69 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call metadata for an account change event. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect abusive API activity and failures.
   - **operation**: `string`
   - **request**: `struct`
     - **data**: `variant`
@@ -64,11 +120,14 @@
     - **data**: `variant`
     - **error**: `string`
     - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The class of the event.
+- **cloud**: `struct` — Cloud account context for change events. Key fields: account.uid, account.name, provider, region, zone. Security use: scope access and investigate account activity.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -77,15 +136,15 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata and processing context for the record. Key fields: uid, correlation_uid, logged_time, modified_time, product.*. Security use: trace provenance and detect tampering.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -104,19 +163,19 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **policies**: `array<struct>`
+- **policies**: `array<struct>` — IAM policy attachment and detachment details for an account change event. Key fields: uid, name, version, is_applied. Security use: verify applied policy changes.
   - **is_applied**: `boolean`
   - **name**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Source network endpoint descriptor for outbound traffic. Key fields: ip, port, hostname, mac, interface_uid. Security use: trace origin of account change events.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -139,27 +198,34 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
-- **user**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type label mapped from type_uid for normalization. Security use: drive consistent categorization.
+- **type_uid**: `bigint` — The type of the event.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **user**: `struct` — Target user identity for the account change event. Key fields: uid, name, type_id. Security use: identify affected user and verify ownership.
   - **has_mfa**: `boolean`
   - **name**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **user_result**: `struct`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **user_result**: `struct` — Post-change user attributes snapshot for account updates. Key fields: uid, name, has_mfa, type, type_id. Security use: verify identity changes and policy compliance.
   - **has_mfa**: `boolean`
   - **name**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **_silver_table**: `string`
 
 ### Table: `api_activity`
 
@@ -167,12 +233,12 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **actor**: `struct` — Activity initiator identity and execution context. Key fields: user.uid, user.name, app_uid, idp.protocol_name, process.cmd_line. Security use: attribute actions to principals and sessions.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -208,13 +274,69 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call detail record with request and response context. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect abnormal API errors and suspicious operations.
   - **operation**: `string`
   - **request**: `struct`
     - **data**: `variant`
@@ -224,11 +346,14 @@
     - **data**: `variant`
     - **error**: `string`
     - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **cloud**: `struct` — Cloud environment identifiers for API activity context. Key fields: account.uid, provider, region, zone, project_uid. Security use: scope investigations by tenant and location.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -237,9 +362,9 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Destination network responder endpoint identity and addressing. Key fields: ip, port, hostname, domain, uid. Security use: detect suspicious external destinations and service exposure.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -262,36 +387,36 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **http_request**: `struct`
+- **http_request**: `struct` — Web server request attributes with method, URL, headers, and sizes. Key fields: http_method, url, http_headers.name, http_headers.value, body_length. Security use: detect suspicious requests and header anomalies.
   - **args**: `string`
-  - **body_length**: `int`
+  - **body_length**: `bigint`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
   - **http_method**: `string`
-  - **length**: `int`
+  - **length**: `bigint`
   - **referrer**: `string`
   - **url**: `string`
   - **user_agent**: `string`
   - **version**: `string`
-- **http_response**: `struct`
-  - **body_length**: `int`
+- **http_response**: `struct` — Web server HTTP response metadata and payload sizing. Key fields: code, status, message, latency, body_length. Security use: Detect error spikes and suspicious responses.
+  - **body_length**: `bigint`
   - **code**: `int`
   - **content_type**: `string`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
   - **latency**: `int`
-  - **length**: `int`
+  - **length**: `bigint`
   - **message**: `string`
   - **status**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event and finding metadata for normalization and timing alignment. Key fields: correlation_uid, uid, processed_time, modified_time, product.name. Security use: trace event provenance and tamper timing.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -310,19 +435,19 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **resources**: `array<struct>`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **resources**: `array<struct>` — Target resource reference for privilege scope. Key fields: uid, name, hostname, ip. Security use: authorize access and trace affected assets.
   - **hostname**: `string`
   - **ip**: `string`
   - **name**: `string`
   - **uid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Client source endpoint identity and network origin metadata. Key fields: ip, port, hostname, domain, uid. Security use: trace request source in API access events.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -345,16 +470,17 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **start_time**: `timestamp`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **start_time**: `timestamp` — The start time of a time period, or the time of the least recent event included in the aggregate event
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type name mapped from type_uid for normalized classification. Security use: detect unexpected event categories.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `authentication`
 
@@ -362,13 +488,13 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Initiating identity context for authentication events. Key fields: user.uid, user.name, app_uid, idp.protocol_name, process.session.uid. Security use: attribute actions and review access decisions.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -404,428 +530,89 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
-  - **user**: `struct`
-    - **has_mfa**: `boolean`
-    - **name**: `string`
-    - **type**: `string`
-    - **type_id**: `int`
-    - **uid**: `string`
-- **auth_factors**: `array<struct>`
-  - **factor_type**: `string`
-  - **factor_type_id**: `int`
-- **auth_protocol**: `string`
-- **auth_protocol_id**: `int`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
-  - **account**: `struct`
-    - **name**: `string`
-    - **uid**: `string`
-  - **cloud_partition**: `string`
-  - **project_uid**: `string`
-  - **provider**: `string`
-  - **region**: `string`
-  - **zone**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
-  - **domain**: `string`
-  - **hostname**: `string`
-  - **instance_uid**: `string`
-  - **interface_name**: `string`
-  - **interface_uid**: `string`
-  - **ip**: `string`
-  - **name**: `string`
-  - **port**: `int`
-  - **svc_name**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-  - **location**: `struct`
-    - **city**: `string`
-    - **continent**: `string`
-    - **country**: `string`
-    - **lat**: `float`
-    - **long**: `float`
-    - **postal_code**: `string`
-  - **mac**: `string`
-  - **vpc_uid**: `string`
-  - **zone**: `string`
-- **enrichments**: `array<struct>`
-  - **data**: `variant`
-  - **desc**: `string`
-  - **name**: `string`
-  - **value**: `string`
-- **is_mfa**: `boolean`
-- **is_remote**: `boolean`
-- **logon_type**: `string`
-- **logon_type_id**: `int`
-- **message**: `string`
-- **metadata**: `struct`
-  - **correlation_uid**: `string`
-  - **event_code**: `string`
-  - **log_level**: `string`
-  - **log_name**: `string`
-  - **log_provider**: `string`
-  - **log_version**: `string`
-  - **logged_time**: `timestamp`
-  - **modified_time**: `timestamp`
-  - **original_time**: `string`
-  - **processed_time**: `timestamp`
-  - **product**: `struct`
-    - **name**: `string`
-    - **vendor_name**: `string`
-    - **version**: `string`
-  - **tags**: `variant`
-  - **tenant_uid**: `string`
-  - **uid**: `string`
-  - **version**: `string`
-- **observables**: `array<struct>`
-  - **name**: `string`
-  - **type**: `string`
-  - **value**: `string`
-- **raw_data**: `variant`
-- **service**: `struct`
-  - **name**: `string`
-  - **uid**: `string`
-- **session**: `struct`
-  - **created_time**: `timestamp`
-  - **credential_uid**: `string`
-  - **expiration_reason**: `string`
-  - **expiration_time**: `timestamp`
-  - **is_mfa**: `boolean`
-  - **is_remote**: `boolean`
-  - **is_vpn**: `boolean`
-  - **issuer**: `string`
-  - **terminal**: `string`
-  - **uid**: `string`
-  - **uid_alt**: `string`
-  - **uuid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
-  - **domain**: `string`
-  - **hostname**: `string`
-  - **instance_uid**: `string`
-  - **interface_name**: `string`
-  - **interface_uid**: `string`
-  - **ip**: `string`
-  - **name**: `string`
-  - **port**: `int`
-  - **svc_name**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-  - **location**: `struct`
-    - **city**: `string`
-    - **continent**: `string`
-    - **country**: `string`
-    - **lat**: `float`
-    - **long**: `float`
-    - **postal_code**: `string`
-  - **mac**: `string`
-  - **vpc_uid**: `string`
-  - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
-- **user**: `struct`
-  - **has_mfa**: `boolean`
-  - **name**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-
-### Table: `authorize_session`
-
-**URL:** https://schema.ocsf.io/1.5.0/classes/authorize_session
-
-#### Table Schema
-
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
-  - **app_name**: `string`
-  - **app_uid**: `string`
-  - **authorizations**: `array<struct>`
-    - **decision**: `string`
-  - **idp**: `struct`
-    - **domain**: `string`
-    - **name**: `string`
-    - **protocol_name**: `string`
-    - **tenant_uid**: `string`
-    - **uid**: `string`
-  - **process**: `struct`
-    - **cmd_line**: `string`
-    - **cpid**: `string`
-    - **name**: `string`
-    - **pid**: `int`
-    - **session**: `struct`
-      - **created_time**: `timestamp`
-      - **credential_uid**: `string`
-      - **expiration_reason**: `string`
-      - **expiration_time**: `timestamp`
-      - **is_mfa**: `boolean`
-      - **is_remote**: `boolean`
-      - **is_vpn**: `boolean`
-      - **issuer**: `string`
-      - **terminal**: `string`
-      - **uid**: `string`
-      - **uid_alt**: `string`
-      - **uuid**: `string`
-    - **uid**: `string`
-    - **user**: `struct`
-      - **has_mfa**: `boolean`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
       - **name**: `string`
-      - **type**: `string`
-      - **type_id**: `int`
-      - **uid**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
-  - **account**: `struct`
-    - **name**: `string`
-    - **uid**: `string`
-  - **cloud_partition**: `string`
-  - **project_uid**: `string`
-  - **provider**: `string`
-  - **region**: `string`
-  - **zone**: `string`
-- **device**: `struct`
-  - **created_time**: `timestamp`
-  - **hostname**: `string`
-  - **hw_info**: `struct`
-    - **bios_date**: `string`
-    - **bios_manufacturer**: `string`
-    - **bios_ver**: `string`
-    - **chassis**: `string`
-    - **cpu_bits**: `int`
-    - **cpu_cores**: `int`
-    - **cpu_count**: `int`
-    - **cpu_speed**: `int`
-    - **cpu_type**: `string`
-    - **desktop_display**: `string`
-    - **keyboard_info**: `string`
-    - **ram_size**: `int`
-    - **serial_number**: `string`
-  - **hypervisor**: `string`
-  - **instance_uid**: `string`
-  - **interface_name**: `string`
-  - **interface_uid**: `string`
-  - **ip**: `string`
-  - **is_compliant**: `boolean`
-  - **is_managed**: `boolean`
-  - **is_personal**: `boolean`
-  - **is_trusted**: `boolean`
-  - **last_seen_time**: `timestamp`
-  - **location**: `struct`
-    - **city**: `string`
-    - **continent**: `string`
-    - **country**: `string`
-    - **lat**: `float`
-    - **long**: `float`
-    - **postal_code**: `string`
-  - **mac**: `string`
-  - **modified_time**: `timestamp`
-  - **name**: `string`
-  - **network_interfaces**: `array<struct>`
-    - **hostname**: `string`
-    - **ip**: `string`
-    - **mac**: `string`
-    - **name**: `string`
-    - **namespace**: `string`
-    - **subnet_uid**: `string`
-    - **type**: `string`
-    - **type_id**: `int`
-    - **uid**: `string`
-  - **org**: `struct`
-    - **name**: `string`
-    - **ou_name**: `string`
-    - **ou_uid**: `string`
-    - **uid**: `string`
-  - **os**: `struct`
-    - **build**: `string`
-    - **country**: `string`
-    - **cpu_bits**: `int`
-    - **edition**: `string`
-    - **lang**: `string`
-    - **name**: `string`
-    - **sp_name**: `string`
-    - **sp_ver**: `int`
-    - **type**: `string`
-    - **type_id**: `int`
-    - **version**: `string`
-  - **region**: `string`
-  - **risk_level**: `string`
-  - **risk_level_id**: `int`
-  - **subnet_uid**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-  - **uid_alt**: `string`
-  - **vpc_uid**: `string`
-  - **zone**: `string`
-- **dst_endpoint**: `struct`
-  - **domain**: `string`
-  - **hostname**: `string`
-  - **instance_uid**: `string`
-  - **interface_name**: `string`
-  - **interface_uid**: `string`
-  - **ip**: `string`
-  - **name**: `string`
-  - **port**: `int`
-  - **svc_name**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-  - **location**: `struct`
-    - **city**: `string`
-    - **continent**: `string`
-    - **country**: `string`
-    - **lat**: `float`
-    - **long**: `float`
-    - **postal_code**: `string`
-  - **mac**: `string`
-  - **vpc_uid**: `string`
-  - **zone**: `string`
-- **enrichments**: `array<struct>`
-  - **data**: `variant`
-  - **desc**: `string`
-  - **name**: `string`
-  - **value**: `string`
-- **http_request**: `struct`
-  - **http_headers**: `array<struct>`
-    - **name**: `string`
-    - **value**: `string`
-  - **http_method**: `string`
-  - **referrer**: `string`
-  - **url**: `struct`
-    - **hostname**: `string`
-    - **path**: `string`
-    - **port**: `int`
-    - **query_string**: `string`
-    - **scheme**: `string`
-    - **subdomain**: `string`
-    - **text**: `string`
-    - **url_string**: `string`
-  - **user_agent**: `string`
-  - **version**: `string`
-  - **x_forwarded_for**: `array<string>`
-- **message**: `string`
-- **metadata**: `struct`
-  - **correlation_uid**: `string`
-  - **event_code**: `string`
-  - **log_level**: `string`
-  - **log_name**: `string`
-  - **log_provider**: `string`
-  - **log_version**: `string`
-  - **logged_time**: `timestamp`
-  - **modified_time**: `timestamp`
-  - **original_time**: `string`
-  - **processed_time**: `timestamp`
-  - **product**: `struct`
-    - **name**: `string`
-    - **vendor_name**: `string`
-    - **version**: `string`
-  - **tags**: `variant`
-  - **tenant_uid**: `string`
-  - **uid**: `string`
-  - **version**: `string`
-- **observables**: `array<struct>`
-  - **name**: `string`
-  - **type**: `string`
-  - **value**: `string`
-- **policy**: `struct`
-  - **desc**: `string`
-  - **group**: `struct`
-    - **desc**: `string`
-    - **name**: `string`
-    - **privileges**: `array<string>`
-    - **type**: `string`
-    - **uid**: `string`
-  - **name**: `string`
-  - **uid**: `string`
-  - **version**: `string`
-- **privileges**: `array<string>`
-- **raw_data**: `variant`
-- **resource**: `struct`
-  - **cloud_partition**: `string`
-  - **criticality**: `string`
-  - **data**: `variant`
-  - **group**: `struct`
-    - **desc**: `string`
-    - **name**: `string`
-    - **privileges**: `array<string>`
-    - **type**: `string`
-    - **uid**: `string`
-  - **labels**: `array<string>`
-  - **name**: `string`
-  - **namespace**: `string`
-  - **owner**: `struct`
     - **account**: `struct`
       - **name**: `string`
       - **uid**: `string`
-    - **domain**: `string`
-    - **email_addr**: `string`
-    - **full_name**: `string`
-    - **groups**: `array<struct>`
-      - **desc**: `string`
-      - **name**: `string`
-      - **privileges**: `array<string>`
-      - **type**: `string`
-      - **uid**: `string`
-    - **name**: `string`
-    - **org**: `struct`
-      - **name**: `string`
-      - **ou_name**: `string`
-      - **ou_uid**: `string`
-      - **uid**: `string`
-    - **type**: `string`
-    - **type_id**: `int`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
     - **uid**: `string`
     - **uid_alt**: `string`
+    - **uuid**: `string`
+- **auth_factors**: `array<struct>` — Authentication factor category metadata for identity verification attempts. Key fields: factor_type, factor_type_id. Security use: assess MFA strength and detect weak authentication.
+  - **factor_type**: `string`
+  - **factor_type_id**: `int`
+- **auth_protocol**: `string` — The authentication protocol as defined by the caption of auth_protocol_id . In the case of Other , it is defined by the event source.
+- **auth_protocol_id**: `int` — The normalized identifier of the authentication protocol used to create the user session
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The class of the event.
+- **cloud**: `struct` — Cloud account context for authentication events. Key fields: account.uid, account.name, provider, region, zone. Security use: attribute logins to cloud tenants and regions.
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
   - **region**: `string`
-  - **type**: `string`
-  - **uid**: `string`
-  - **version**: `string`
-- **service**: `struct`
-  - **name**: `string`
-  - **uid**: `string`
-- **session**: `struct`
-  - **created_time**: `timestamp`
-  - **credential_uid**: `string`
-  - **expiration_reason**: `string`
-  - **expiration_time**: `timestamp`
-  - **is_mfa**: `boolean`
-  - **is_remote**: `boolean`
-  - **is_vpn**: `boolean`
-  - **issuer**: `string`
-  - **terminal**: `string`
-  - **uid**: `string`
-  - **uid_alt**: `string`
-  - **uuid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+  - **zone**: `string`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Target authentication destination endpoint identity and network coordinates. Key fields: hostname, ip, port, domain, uid. Security use: detect suspicious authentication targets.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -848,21 +635,124 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
-- **user**: `struct`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **is_mfa**: `boolean` — Multi-factor authentication usage indicator for an authentication event. Security use: detect missing MFA on sensitive logins.
+- **is_remote**: `boolean` — Remote-connection flag for an authentication attempt. Security use: remote access detection.
+- **logon_type**: `string` — The logon type, normalized to the caption of the logon_type_id value. In the case of `Other`, it is defined by the event source
+- **logon_type_id**: `int` — Normalized logon type identifier for authentication events. Security use: distinguish interactive vs remote access.
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata attributes for normalization and lifecycle timing. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: incident triage and audit traceability.
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **service**: `struct` — Authentication target service or gateway identifier. Key fields: name, uid. Security use: trace access to specific services.
+  - **name**: `string`
+  - **uid**: `string`
+- **session**: `struct` — Authentication session context and lifecycle metadata. Key fields: uid, uuid, created_time, expiration_time, is_mfa. Security use: detect suspicious sessions and MFA anomalies.
+  - **created_time**: `timestamp`
+  - **credential_uid**: `string`
+  - **expiration_reason**: `string`
+  - **expiration_time**: `timestamp`
+  - **is_mfa**: `boolean`
+  - **is_remote**: `boolean`
+  - **is_vpn**: `boolean`
+  - **issuer**: `string`
+  - **terminal**: `string`
+  - **uid**: `string`
+  - **uid_alt**: `string`
+  - **uuid**: `string`
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Source network endpoint identity for authentication traffic origin. Key fields: ip, port, hostname, mac, vpc_uid. Security use: trace login sources and detect anomalous origins.
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The details about the authentication request. For example, possible details for Windows logon or logoff events are: Success LOGOFF_USER_INITIATED LOGOFF_OTHER Failure USER_DOES_NOT_EXIST INVALID_CREDENTIALS ACCOUNT_DISABLED ACCOUNT_LOCKED_OUT PASSWORD_EXPIRED
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event type name mapped from type_uid for authentication records. Security use: standardize event categorization.
+- **type_uid**: `bigint` — The type of the authentication event.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **user**: `struct` — Authentication subject identity attributes for login context. Key fields: uid, name, type, type_id, has_mfa. Security use: detect account misuse and enforce access controls.
   - **has_mfa**: `boolean`
   - **name**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **_silver_table**: `string`
+
+### Table: `csv_test_d_gold`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/csv_test_d_gold
+
+#### Table Schema
+
+- **lw_id**: `string`
+- **time**: `timestamp`
+- **data**: `variant`
+- **raw_data**: `variant`
+- **_silver_table**: `string`
+
+### Table: `cuj23`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/cuj23
+
+#### Table Schema
+
+- **lw_id**: `string`
+- **time**: `timestamp`
+- **raw_data**: `variant`
+- **eventNameId**: `string`
+- **_silver_table**: `string`
 
 ### Table: `data_security_finding`
 
@@ -870,12 +760,12 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity_id**: `int` — The normalized identifier of the Data Security Finding activity.
+- **activity_name**: `string` — The Data Security finding activity name, as defined by the activity_id .
+- **actor**: `struct` — Activity initiator identity context for user, app, or process. Key fields: user.uid, user.name, app_uid, process.pid, idp.protocol_name. Security use: attribute actions to principals, validate access decisions.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -911,13 +801,69 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call metadata for operation, request, and response context. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect failed calls and anomalous operations.
   - **operation**: `string`
   - **request**: `struct`
     - **data**: `variant`
@@ -927,11 +873,14 @@
     - **data**: `variant`
     - **error**: `string`
     - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **cloud**: `struct` — Cloud account and location context for a security finding. Key fields: account.uid, account.name, provider, region, zone. Security use: scope findings to cloud tenants and regions.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -940,22 +889,55 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **confidence**: `string`
-- **confidence_id**: `int`
-- **confidence_score**: `int`
-- **database**: `struct`
+- **confidence**: `string` — The confidence, normalized to the caption of the confidence_id value. In the case of `Other`, it is defined by the event source
+- **confidence_id**: `int` — The normalized confidence refers to the accuracy of the rule that created the finding. A rule with a low confidence means that the finding scope is wide and may create finding reports that may not be malicious in nature
+- **confidence_score**: `int` — Source-reported confidence score expressing event reliability. Security use: triage and prioritization.
+- **database**: `struct` — Database identity and metadata for affected datastore. Key fields: uid, name, type, type_id, modified_time. Security use: identify impacted database during findings triage.
   - **desc**: `string`
   - **modified_time**: `timestamp`
   - **name**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **databucket**: `struct`
+- **databucket**: `struct` — Databucket container metadata for partitioned stored data. Key fields: uid, name, type_id, is_public, is_encrypted. Security use: assess exposure and encryption posture.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **file**: `struct`
     - **name**: `string`
     - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
   - **groups**: `array<struct>`
     - **name**: `string`
     - **privileges**: `string`
@@ -969,7 +951,7 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **device**: `struct`
+- **device**: `struct` — Networked host identity and posture metadata for the affected device. Key fields: uid, hostname, ip, domain, risk_score. Security use: host attribution and risk triage.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -993,9 +975,9 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Responder endpoint identity and network coordinates for a connection. Key fields: ip, port, hostname, uid, type_id. Security use: pinpoint target service and affected host.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1018,16 +1000,49 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **end_time**: `timestamp`
-- **enrichments**: `array<struct>`
+- **end_time**: `timestamp` — Most recent event time captured within the finding interval. Security use: incident timeline.
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **file**: `struct`
+- **file**: `struct` — Sensitive file reference for classified data discovery results. Key fields: name, path. Security use: identify exposed sensitive files.
   - **name**: `string`
   - **path**: `string`
-- **finding_info**: `struct`
+  - **accessor**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **creator**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **owner**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+- **finding_info**: `struct` — Finding metadata and analytic context for a security detection. Key fields: uid, title, desc, analytic.uid, attacks.technique.uid. Security use: triage and investigation of detected activity.
   - **analytic**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -1064,12 +1079,12 @@
   - **src_url**: `string`
   - **title**: `string`
   - **uid**: `string`
-- **impact**: `string`
-- **impact_id**: `int`
-- **impact_score**: `int`
-- **is_alert**: `boolean`
-- **message**: `string`
-- **metadata**: `struct`
+- **impact**: `string` — The impact , normalized to the caption of the impact_id value. In the case of `Other`, it is defined by the event source
+- **impact_id**: `int` — The normalized impact of the incident or finding. Per NIST, this is the magnitude of harm that can be expected to result from the consequences of unauthorized disclosure, modification, destruction, or loss of information or information system availability
+- **impact_score**: `int` — The impact as an integer value of the finding, valid range 0-100
+- **is_alert**: `boolean` — Indicates that the event is considered to be an alertable signal. For example, an activity_id of `Create` could constitute an alertable signal and the value would be true , while `Close` likely would not and either omit the attribute or set its value to false . Note that other events with the security_control profile may also be deemed alertable signals and may also carry is_alert = true attributes.
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event or finding metadata snapshot for normalization and traceability. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: event provenance and audit trail.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -1088,18 +1103,18 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **risk_details**: `string`
-- **risk_level**: `string`
-- **risk_level_id**: `int`
-- **risk_score**: `int`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **risk_details**: `string` — Finding risk characterization describing likelihood, impact, and prioritization context. Security use: risk triage and remediation prioritization.
+- **risk_level**: `string` — The risk level, normalized to the caption of the risk_level_id value
+- **risk_level_id**: `int` — Normalized risk level identifier for security findings. Security use: prioritize triage based on risk.
+- **risk_score**: `int` — Numeric source-reported risk score for a security finding. Security use: prioritize triage and escalation.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Network connection initiating client endpoint attributes. Key fields: ip, port, hostname, mac, uid. Security use: attribute suspected source in findings.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1122,11 +1137,11 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **table**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **table**: `struct` — Relational table entity metadata and access context. Key fields: uid, name, created_time, modified_time, size. Security use: track sensitive table changes and access entitlements.
   - **name**: `string`
   - **uid**: `string`
   - **created_time**: `timestamp`
@@ -1138,10 +1153,11 @@
     - **uid**: `string`
   - **modified_time**: `timestamp`
   - **size**: `bigint`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **unmapped**: `variant`
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Finding type name derived from type_uid, used to label event or finding class. Security use: triage and alert categorization.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `datastore_activity`
 
@@ -1149,12 +1165,12 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity source actor identity context for user, app, and process. Key fields: user.uid, user.name, app_uid, process.pid, idp.protocol_name. Security use: attribute actions to authenticated principals.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -1190,13 +1206,69 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call metadata for datastore actions with request and response context. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect failed calls and suspicious API usage.
   - **operation**: `string`
   - **request**: `struct`
     - **data**: `variant`
@@ -1206,11 +1278,14 @@
     - **data**: `variant`
     - **error**: `string`
     - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **cloud**: `struct` — Cloud account context and location identifiers. Key fields: account.uid, account.name, provider, region, zone. Security use: attribute events to tenant and region.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -1219,19 +1294,52 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **database**: `struct`
+- **database**: `struct` — Database identity and classification metadata for datastore events. Key fields: uid, name, type, type_id, modified_time. Security use: detect unauthorized database changes.
   - **desc**: `string`
   - **modified_time**: `timestamp`
   - **name**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **databucket**: `struct`
+- **databucket**: `struct` — Databucket metadata for partitioned data storage and contained objects. Key fields: uid, name, type, size, is_encrypted. Security use: identify exposed or unencrypted storage targets.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **file**: `struct`
     - **name**: `string`
     - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
   - **groups**: `array<struct>`
     - **name**: `string`
     - **privileges**: `string`
@@ -1245,7 +1353,7 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **device**: `struct`
+- **device**: `struct` — Networked host identity and posture attributes for the activity source or target. Key fields: uid, hostname, ip, domain, risk_score. Security use: device attribution and risk triage.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -1269,9 +1377,9 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Responder endpoint identity for datastore network activity. Key fields: ip, port, hostname, uid, svc_name. Security use: identify destination server in suspicious connections.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1294,36 +1402,36 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **http_request**: `struct`
+- **http_request**: `struct` — Web request metadata and payload sizing for server access events. Key fields: http_method, url, http_headers.*, body_length, user_agent. Security use: detect malicious requests and abnormal clients.
   - **args**: `string`
-  - **body_length**: `int`
+  - **body_length**: `bigint`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
   - **http_method**: `string`
-  - **length**: `int`
+  - **length**: `bigint`
   - **referrer**: `string`
   - **url**: `string`
   - **user_agent**: `string`
   - **version**: `string`
-- **http_response**: `struct`
-  - **body_length**: `int`
+- **http_response**: `struct` — Web server HTTP response metadata and size measurements. Key fields: code, status, latency, body_length, http_headers.name. Security use: detect errors and suspicious responses.
+  - **body_length**: `bigint`
   - **code**: `int`
   - **content_type**: `string`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
   - **latency**: `int`
-  - **length**: `int`
+  - **length**: `bigint`
   - **message**: `string`
   - **status**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata bundle for lineage, timing, and product provenance. Key fields: uid, correlation_uid, logged_time, modified_time, product.*. Security use: audit trail and tamper detection.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -1342,14 +1450,14 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Initiating client endpoint for datastore email activity. Key fields: ip, hostname, domain, port, uid. Security use: identify sender host and attribute suspicious activity.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1372,11 +1480,11 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **table**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **table**: `struct` — Relational datastore table descriptor with identity, metadata, access groups, and lifecycle times. Key fields: name, uid, created_time, modified_time, groups.*. Security use: detect unauthorized table access or privilege drift.
   - **name**: `string`
   - **uid**: `string`
   - **created_time**: `timestamp`
@@ -1388,13 +1496,820 @@
     - **uid**: `string`
   - **modified_time**: `timestamp`
   - **size**: `bigint`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type**: `string`
-- **type_id**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type**: `string` — Datastore resource category label for activity records. Security use: classify datastore targets.
+- **type_id**: `int` — Normalized datastore resource type identifier for datastore activity classification. Security use: control and monitor datastore access types.
+- **type_name**: `string` — Event or finding type name derived from type_uid, used for readable categorization. Security use: Triage and alert labeling.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id .
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
+
+### Table: `detection_finding`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/detection_finding
+
+**Description:** A Detection Finding describes detections or alerts generated by security products using correlation engines, detection engines or other methodologies. Note: if the event producer is a security control, the security_control profile should be applied and its attacks information, if present, should be duplicated into the finding_info object.
+
+#### Table Schema
+
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **_silver_table**: `string` — The name of the silver table that this row was generated from.
+- **action**: `string` — This field must exactly match the caption associated with the `action_id` integer, as defined in the OCSF action_id enum, unless the value is 99, in which case set the resulting value to the known action discovered during the action_id evaluation.
+- **action_id**: `int` — This field represents the specific outcome of the logged event. First, check for explicit action or outcome fields with names like `action`, `outcome`, `result`, `disposition`, or `status`. Match values (case-insensitive): `allow`, `permit`, `accept`, `grant`, or `success` maps to action_id=1 (Allowed); `deny`, `block`, `reject`, `drop`, or `fail` maps to action_id=2 (Denied). If no explicit field exists, check if the log source is only reporting single outcomes (e.g., a firewall configured to `log only denies` means all logged events show denied, and are therefore action_id=2). You can also infer from context: HTTP status codes 2xx/3xx indicate action_id=1, while 4xx/5xx indicate action_id=2; authentication events with `Login successful` are action_id=1, while `Login failed` are action_id=2; in AWS CloudTrail, absence of `errorCode` field indicates action_id=1. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If you can categorically identify the action that took place, but it is not represented by an enum caption either exactly or semantically then treat it as medium confidence and assign the resulting enum integer as 99 (Other). If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **activity_id**: `int` — This is an integer representation of the specific activity or event that took place during the detection finding event in the record. Determine the correct value by comparing the record text with the enum captions. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the activity is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **category_name**: `string` — This field must exactly match the caption associated with the `category_uid` integer, as defined in the OCSF category_uid enum.
+- **category_uid**: `int` — The category unique identifier of the event. For detection finding, the category_uid is always 2.
+- **class_name**: `string` — This field must exactly match the caption associated with the `class_uid` integer, as defined in the OCSF class_uid enum.
+- **class_uid**: `int` — This field captures a unique identifier for the class of the event. For detection finding, the class_uid is always 2004.
+- **confidence**: `string` — This field must exactly match the caption associated with the `confidence_id` integer, as defined in the OCSF confidence_id enum, unless the value is 99, in which case set the resulting value to the known confidence discovered during the confidence_id evaluation.
+- **confidence_id**: `int` — The `confidence_id` field stores the coded representation of the confidence level associated with a detection finding. It is only populated if a code is available in the vendor logs, usually mapped from fields named `confidence_id`, `confidence_code`, or similar. If available, the vendor data dictionary may be required to determine the correct enum value, by using either an explicit or implicit semantic match based on similar keywords between the OCSF caption and the vendor data dictionary caption. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the confidence is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **confidence_score**: `int` — This field holds a numerical score that quantifies the confidence level associated with a detection finding. It is usually derived from fields named `confidence_score`, `confidence_rating`, or similar. The resulting value is an integer directly mapped from the vendor log if present. This field is optional and may not be present in all logs.
+- **device**: `struct` — An addressable device, computer system or host.
+  - **created_time**: `timestamp`
+  - **desc**: `string`
+  - **domain**: `string`
+  - **groups**: `array<struct>`
+    - **name**: `string`
+    - **privileges**: `string`
+    - **type**: `string`
+    - **uid**: `string`
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **is_compliant**: `boolean`
+  - **is_managed**: `boolean`
+  - **is_personal**: `boolean`
+  - **is_trusted**: `boolean`
+  - **name**: `string`
+  - **region**: `string`
+  - **risk_level**: `string`
+  - **risk_level_id**: `int`
+  - **risk_score**: `int`
+  - **subnet**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string` — This field must exactly match the caption associated with the `disposition_id` integer, as defined in the OCSF disposition_id enum, unless the value is 99, in which case set the resulting value to the known disposition discovered during the disposition_id evaluation.
+- **disposition_id**: `int` — This is an integer representation of the disposition as defined by a security control. Map this field when either the OCSF event class is a `finding` or when a record is the result of a third party system, that has made a determination about a specific event. For instance, if the record demonstrates an anti-virus outcome of `malicious` against a specific process, then attempt to match the outcome with a disposition_id. To determined the correct enum integer value, use the enum caption and/or description and scan the record for either an explicit match (case insensitive), or an implicit match based on the record type, `result`, `outcome` or similar. If a record demonstrates a disposition outcome,  and the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to. Records that do not exhibit any disposition outcome should be set to 0.
+- **end_time**: `timestamp` — The timestamp marking the end of the event that led to the detection finding. This value can be mapped from fields like `last_detected` or `end_time`. If available the resultant timestamp should be formatted in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.sssZ), otherwise leave empty.
+- **enrichments**: `array<struct>` — This field contains any additional data or context related to the event, which is often provided by external systems or data enrichment tools. It can be mapped from vendor fields like `additional_info`, `context_data`, or `enriched_data`. This field is optional and of array type. For example, it might include threat intelligence data related to an IP address involved in the event.
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **evidences**: `array<struct>` — The evidence artifacts associated with the detection finding. These provide supporting data or context about the detection, such as matched rules, triggered conditions, or related indicators.
+  - **actor**: `struct`
+    - **app_name**: `string`
+    - **app_uid**: `string`
+    - **authorizations**: `array<struct>`
+      - **decision**: `string`
+    - **idp**: `struct`
+      - **domain**: `string`
+      - **name**: `string`
+      - **protocol_name**: `string`
+      - **tenant_uid**: `string`
+      - **uid**: `string`
+    - **process**: `struct`
+      - **cmd_line**: `string`
+      - **cpid**: `string`
+      - **name**: `string`
+      - **pid**: `int`
+      - **session**: `struct`
+        - **created_time**: `timestamp`
+        - **credential_uid**: `string`
+        - **expiration_reason**: `string`
+        - **expiration_time**: `timestamp`
+        - **is_mfa**: `boolean`
+        - **is_remote**: `boolean`
+        - **is_vpn**: `boolean`
+        - **issuer**: `string`
+        - **terminal**: `string`
+        - **uid**: `string`
+        - **uid_alt**: `string`
+        - **uuid**: `string`
+      - **uid**: `string`
+      - **user**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **file**: `struct`
+        - **name**: `string`
+        - **path**: `string`
+        - **accessor**: `struct`
+          - **has_mfa**: `boolean`
+          - **name**: `string`
+          - **type**: `string`
+          - **type_id**: `int`
+          - **uid**: `string`
+          - **account**: `variant`
+        - **creator**: `struct`
+          - **has_mfa**: `boolean`
+          - **name**: `string`
+          - **type**: `string`
+          - **type_id**: `int`
+          - **uid**: `string`
+          - **account**: `variant`
+        - **hashes**: `array<struct>`
+          - **algorithm**: `string`
+          - **algorithm_id**: `int`
+          - **value**: `string`
+        - **owner**: `struct`
+          - **has_mfa**: `boolean`
+          - **name**: `string`
+          - **type**: `string`
+          - **type_id**: `int`
+          - **uid**: `string`
+          - **account**: `variant`
+        - **url**: `struct`
+          - **url_string**: `string`
+      - **parent_process**: `variant`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+  - **api**: `struct`
+    - **operation**: `string`
+    - **request**: `struct`
+      - **data**: `variant`
+      - **uid**: `string`
+    - **response**: `struct`
+      - **code**: `int`
+      - **data**: `variant`
+      - **error**: `string`
+      - **message**: `string`
+    - **service**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **connection_info**: `struct`
+    - **direction**: `string`
+    - **direction_id**: `int`
+    - **flag_history**: `string`
+    - **protocol_name**: `string`
+    - **protocol_num**: `int`
+    - **protocol_ver**: `string`
+    - **protocol_ver_id**: `int`
+    - **uid**: `string`
+  - **container**: `struct`
+    - **hash**: `struct`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **image**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **labels**: `array<string>`
+      - **path**: `string`
+      - **tag**: `string`
+      - **tags**: `array<struct>`
+        - **correlation_uid**: `string`
+        - **event_code**: `string`
+        - **log_level**: `string`
+        - **log_name**: `string`
+        - **log_provider**: `string`
+        - **log_version**: `string`
+        - **logged_time**: `timestamp`
+        - **modified_time**: `timestamp`
+        - **original_time**: `string`
+        - **processed_time**: `timestamp`
+        - **product**: `struct`
+          - **name**: `string`
+          - **vendor_name**: `string`
+          - **version**: `string`
+        - **tags**: `variant`
+        - **tenant_uid**: `string`
+        - **uid**: `string`
+        - **version**: `string`
+    - **labels**: `array<string>`
+    - **name**: `string`
+    - **network_driver**: `string`
+    - **orchestrator**: `string`
+    - **pod_uuid**: `string`
+    - **runtime**: `string`
+    - **size**: `bigint`
+    - **tag**: `string`
+    - **tags**: `array<struct>`
+      - **correlation_uid**: `string`
+      - **event_code**: `string`
+      - **log_level**: `string`
+      - **log_name**: `string`
+      - **log_provider**: `string`
+      - **log_version**: `string`
+      - **logged_time**: `timestamp`
+      - **modified_time**: `timestamp`
+      - **original_time**: `string`
+      - **processed_time**: `timestamp`
+      - **product**: `struct`
+        - **name**: `string`
+        - **vendor_name**: `string`
+        - **version**: `string`
+      - **tags**: `variant`
+      - **tenant_uid**: `string`
+      - **uid**: `string`
+      - **version**: `string`
+    - **uid**: `string`
+  - **data**: `variant`
+  - **database**: `struct`
+    - **desc**: `string`
+    - **modified_time**: `timestamp`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **databucket**: `struct`
+    - **created_time**: `timestamp`
+    - **desc**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **groups**: `array<struct>`
+      - **name**: `string`
+      - **privileges**: `string`
+      - **type**: `string`
+      - **uid**: `string`
+    - **is_encrypted**: `boolean`
+    - **is_public**: `boolean`
+    - **modified_time**: `timestamp`
+    - **name**: `string`
+    - **size**: `bigint`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **device**: `struct`
+    - **created_time**: `timestamp`
+    - **desc**: `string`
+    - **domain**: `string`
+    - **groups**: `array<struct>`
+      - **name**: `string`
+      - **privileges**: `string`
+      - **type**: `string`
+      - **uid**: `string`
+    - **hostname**: `string`
+    - **ip**: `string`
+    - **is_compliant**: `boolean`
+    - **is_managed**: `boolean`
+    - **is_personal**: `boolean`
+    - **is_trusted**: `boolean`
+    - **name**: `string`
+    - **region**: `string`
+    - **risk_level**: `string`
+    - **risk_level_id**: `int`
+    - **risk_score**: `int`
+    - **subnet**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **dst_endpoint**: `struct`
+    - **domain**: `string`
+    - **hostname**: `string`
+    - **instance_uid**: `string`
+    - **interface_name**: `string`
+    - **interface_uid**: `string`
+    - **ip**: `string`
+    - **name**: `string`
+    - **port**: `int`
+    - **svc_name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **location**: `struct`
+      - **city**: `string`
+      - **continent**: `string`
+      - **country**: `string`
+      - **lat**: `float`
+      - **long**: `float`
+      - **postal_code**: `string`
+    - **mac**: `string`
+    - **vpc_uid**: `string`
+    - **zone**: `string`
+  - **email**: `struct`
+    - **to**: `string`
+    - **urls**: `array<struct>`
+      - **url_string**: `string`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
+  - **http_request**: `struct`
+    - **args**: `string`
+    - **body_length**: `bigint`
+    - **http_headers**: `array<struct>`
+      - **name**: `string`
+      - **value**: `string`
+    - **http_method**: `string`
+    - **length**: `bigint`
+    - **referrer**: `string`
+    - **url**: `string`
+    - **user_agent**: `string`
+    - **version**: `string`
+  - **http_response**: `struct`
+    - **body_length**: `bigint`
+    - **code**: `int`
+    - **content_type**: `string`
+    - **http_headers**: `array<struct>`
+      - **name**: `string`
+      - **value**: `string`
+    - **latency**: `int`
+    - **length**: `bigint`
+    - **message**: `string`
+    - **status**: `string`
+  - **ja4_fingerprint_list**: `array<struct>`
+    - **section_a**: `string`
+    - **section_b**: `string`
+    - **section_c**: `string`
+    - **section_d**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **value**: `string`
+  - **job**: `struct`
+    - **cmd_line**: `string`
+    - **created_time**: `timestamp`
+    - **desc**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **last_run_time**: `timestamp`
+    - **name**: `string`
+    - **next_run_time**: `timestamp`
+    - **run_state**: `string`
+    - **run_state_id**: `int`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
+  - **query**: `struct`
+    - **class**: `string`
+    - **packet_uid**: `int`
+    - **type**: `string`
+    - **hostname**: `string`
+    - **opcode**: `string`
+    - **opcode_id**: `int`
+  - **script**: `struct`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **name**: `string`
+    - **parent_uid**: `string`
+    - **script_content**: `struct`
+      - **is_truncated**: `boolean`
+      - **untruncated_size**: `bigint`
+      - **value**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+  - **src_endpoint**: `struct`
+    - **domain**: `string`
+    - **hostname**: `string`
+    - **instance_uid**: `string`
+    - **interface_name**: `string`
+    - **interface_uid**: `string`
+    - **ip**: `string`
+    - **name**: `string`
+    - **port**: `int`
+    - **svc_name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **location**: `struct`
+      - **city**: `string`
+      - **continent**: `string`
+      - **country**: `string`
+      - **lat**: `float`
+      - **long**: `float`
+      - **postal_code**: `string`
+    - **mac**: `string`
+    - **vpc_uid**: `string`
+    - **zone**: `string`
+  - **tls**: `struct`
+    - **alert**: `int`
+    - **certificate**: `struct`
+      - **created_time**: `timestamp`
+      - **expiration_time**: `timestamp`
+      - **fingerprints**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **is_self_signed**: `boolean`
+      - **issuer**: `string`
+      - **sans**: `array<struct>`
+        - **name**: `string`
+        - **type**: `string`
+      - **serial_number**: `string`
+      - **subject**: `string`
+      - **uid**: `string`
+      - **version**: `string`
+    - **certificate_chain**: `array<string>`
+    - **cipher**: `string`
+    - **client_ciphers**: `array<string>`
+    - **extension_list**: `array<struct>`
+      - **data**: `variant`
+      - **type**: `string`
+      - **type_id**: `int`
+    - **handshake_dur**: `int`
+    - **ja3_hash**: `struct`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **ja3s_hash**: `struct`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **key_length**: `int`
+    - **sans**: `array<struct>`
+      - **name**: `string`
+      - **type**: `string`
+    - **server_ciphers**: `array<string>`
+    - **sni**: `string`
+    - **tls_extension_list**: `array<struct>`
+      - **data**: `variant`
+      - **type**: `string`
+      - **type_id**: `int`
+    - **version**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+- **finding_info**: `struct` — The finding_info object contains detailed information about the detection finding. This object can be populated from various fields in the vendor log, depending on the specific details available about the finding.
+  - **analytic**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **category**: `string`
+    - **desc**: `string`
+    - **related_analytics**: `array<variant>`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **version**: `string`
+  - **attacks**: `array<struct>`
+    - **sub_technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactic**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactics**: `array<struct>`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **version**: `string`
+  - **created_time**: `timestamp`
+  - **data_sources**: `string`
+  - **desc**: `string`
+  - **first_seen_time**: `timestamp`
+  - **last_seen_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **src_url**: `string`
+  - **title**: `string`
+  - **uid**: `string`
+- **impact**: `string` — This field must exactly match the caption string associated with the `impact_id` value, as defined in the OCSF enumeration for its specific class, unless the value is 99, in which case set the resulting value to the known impact discovered during the impact_id evaluation.
+- **impact_id**: `int` — The `impact_id` field captures the severity level of the detection finding as an integer. This is typically mapped from fields such as `severity_code` or `impact_code` in vendor logs. If available, the vendor data dictionary may be required to determine the correct enum value, by using either an explicit or implicit semantic match based on similar keywords between the OCSF caption and the vendor data dictionary caption. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **impact_score**: `int` — The `impact_score` field represents a numerical score indicating the severity or impact of the detection finding. This field could be mapped from similar scoring fields in vendor logs such as `severity_score` or `risk_score`.
+- **is_alert**: `boolean` — The `is_alert` field indicates whether the detection finding is considered an alert. Set this boolean field to `true` if the event was considered an alert (e.g detection rule) about a specific predefined condition, otherwise set to `false`.
+- **message**: `string` — Contains a human-readable description of the event, including key details. This field is typically populated from vendor fields like `description`, `log_message`, `message` or `event_message`. This field is recommended and is of string type. For example, a message might read `Firewall rule triggered: outgoing traffic to port 22 blocked`.
+- **metadata**: `struct` — The metadata field holds information about the event record itself. It captures the current event type that is being mapped, processing time, source and sourcetype of the log source amongst other details.
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>` — The observables associated with the event or a finding.
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **raw_data**: `variant` — The raw_data field is designed to hold the raw, unaltered data from the event log. This field should be populated from the existing `data` field if available. Leave empty otherwise.
+- **remediation**: `struct` — The remediation information associated with the detection finding, describing any recommended or taken corrective actions.
+  - **desc**: `string`
+  - **kb_article_list**: `array<struct>`
+    - **avg_timespan**: `struct`
+      - **duration**: `bigint`
+      - **duration_days**: `int`
+      - **duration_hours**: `int`
+      - **duration_mins**: `int`
+      - **duration_months**: `int`
+      - **duration_secs**: `int`
+      - **duration_weeks**: `int`
+      - **duration_years**: `int`
+      - **type**: `string`
+      - **type_id**: `int`
+    - **bulletin**: `string`
+    - **classification**: `string`
+    - **created_time**: `timestamp`
+    - **install_state**: `string`
+    - **install_state_id**: `int`
+    - **is_superseded**: `boolean`
+    - **os**: `struct`
+      - **build**: `string`
+      - **country**: `string`
+      - **cpe_name**: `string`
+      - **cpu_bits**: `int`
+      - **edition**: `string`
+      - **kernel_release**: `string`
+      - **lang**: `string`
+      - **name**: `string`
+      - **sp_name**: `string`
+      - **sp_ver**: `int`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **version**: `string`
+    - **product**: `struct`
+      - **name**: `string`
+      - **vendor_name**: `string`
+      - **version**: `string`
+    - **severity**: `string`
+    - **size**: `bigint`
+    - **src_url**: `string`
+    - **title**: `string`
+    - **uid**: `string`
+  - **kb_articles**: `array<string>`
+  - **references**: `array<string>`
+- **resources**: `array<struct>` — A collection of resources related to the detection finding. These resources can be any entities that have been impacted or are relevant to the finding, such as hosts or IP addresses. This field is typically mapped from vendor fields like `host` or `asset`.
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+- **risk_details**: `string` — The `risk_details` field provides a text description of the risk associated with the detection finding. This is typically populated from fields in vendor logs that contain detailed risk information, such as `risk_description`, `threat_details`, or `risk_info`.
+- **risk_level**: `string` — The risk level of the detection finding. The resulting value must exactly match the caption associated with the `risk_level_id` integer, as defined in the OCSF risk_level enum caption, unless the value is 99, in which case set the resulting value to the known risk level discovered during the risk_level_id evaluation.
+- **risk_level_id**: `int` — This is an integer representation of the risk level of a detection finding. This value may be derived from vendor-specific fields like `risk_rating` or `threat_level`. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the risk level is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **risk_score**: `int` — The risk score associated with a detection finding. This field captures quantitative measures of the potential impact or severity of the finding. It may be mapped from vendor fields like `risk_value`, `severity_score`. If a confident match cannot be found leave empty.
+- **severity**: `string` — This field must exactly match the caption associated with the `severity_id` integer, as defined in the OCSF severity_id enum, unless the value is 99, in which case set the resulting value to the known severity discovered during the severity_id evaluation.
+- **severity_id**: `int` — The severity_id integer field represents the coded severity level matching the OCSF enum captions defined. Use the following approach to determine the correct value. Check vendor fields like `severity_code`, `severity_id`, `alert_level`, or `priority` and match to OCSF enum captions. If a vendor dictionary is available, and the vendor provides integer codes, translate those codes to severity level names first, then match to OCSF captions. For string values in the source data, perform case-insensitive matching: `info`/`informational`/`information`/`6`/`debug` matches Informational (1); `low`/`minor`/`5` matches Low (2); `medium`/`moderate`/`warn` matches Medium (3); `high`/`major`/`error`/`alert` matches High (4); `critical`/`severe`/`emergency`/`urgent`/`fatal` matches Critical (5); `fatal`/`disaster`/`0` matches Fatal (6). If no severity field exists, infer from event type: routine operations (logins, file reads)=1, failed operations or policy violations=3, security incidents=5. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match the severity is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **start_time**: `timestamp` — This field captures the time when the detection finding event first started. It is typically mapped from fields like `discovered_at` or `first_detected`. The resultant timestamp should be formatted in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.sssZ).
+- **status**: `string` — The normalized status of the Finding set by the consumer normalized to the caption of the status_id value. The resulting value must exactly match the caption associated with the `status_id` integer, as defined in the OCSF status_id enum caption, unless the value is 99, in which case set the resulting value to the known status discovered during the status_id evaluation.
+- **status_code**: `string` — The status_code field stores a coded representation of the event`s status. Vendor fields like `status_code` or `status`, `errorCode` can be used for mapping. Only populate this field if a status code is explicitly available in the vendor log. If the status code is not available, then do not set it at all.
+- **status_detail**: `string` — The status_detail field provides additional information or sub-status associated with the event, offering further context to the `status_code` field. This field can be mapped from vendor fields such as `status_detail` or `event_substatus`. If this detailed status is not available, then do not set it at all.
+- **status_id**: `int` — This is an integer representation of the specific status of the finding. Determine the correct value by comparing the record text with the enum captions. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the status is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **time**: `timestamp` — The time field captures the exact timestamp when the event occurred. It is a required field and should be populated with a date-time string in ISO 8601 format. The resulting field should be a direct mapping from an existing timestamp field already called `time` in the given input data.
+- **timezone_offset**: `int` — This field is intended to capture the difference between the event timestamp and Coordinated Universal Time (UTC), typically derived from vendor fields such as `time_offset` or `utc_offset`. It is represented as a string, in the `+HH:MM` or `-HH:MM` format. For instance, `+05:30` corresponds to Indian Standard Time. While this field is not mandatory, its inclusion is recommended.
+- **type_name**: `string` — This field must exactly match the caption associated with the `type_uid` integer, as defined in the OCSF type_uid enum, unless the value is 99, in which case set the resulting value to the known type discovered during the type_uid evaluation.
+- **unmapped**: `variant` — This databricks variant field serves as a container for any data from the upstream input that doesn`t correspond directly to a defined field. It should be computed with data or context not mapped to an OCSF schema field. Note that when creating a VARIANT type field in Databricks, specific syntax requirements apply. The field is optional, meaning it can be left empty if all data from the vendor logs was mapped to the appropriate OCSF event class fields.
+- **vulnerabilities**: `array<struct>` — This is a structured field that contains an array of vulnerabilities associated with the detection finding.
+  - **cve**: `struct`
+    - **created_time**: `timestamp`
+    - **cvss**: `array<struct>`
+      - **base_score**: `float`
+      - **overall_score**: `float`
+      - **severity**: `string`
+      - **src_url**: `string`
+    - **uid**: `string`
+  - **desc**: `string`
+  - **exploit_last_seen_time**: `timestamp`
+  - **first_seen_time**: `timestamp`
+  - **fix_available**: `boolean`
+  - **is_exploit_available**: `boolean`
+  - **is_fix_available**: `boolean`
 
 ### Table: `dhcp_activity`
 
@@ -1402,18 +2317,18 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **app_name**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **app_name**: `string` — The name of the application that initiated the DHCP connection
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **cloud**: `struct` — Cloud environment context for DHCP activity origin. Key fields: account.uid, account.name, provider, region, zone. Security use: validate tenant and location for DHCP events.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -1422,7 +2337,7 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **connection_info**: `struct`
+- **connection_info**: `struct` — Network connection metadata for DHCP-related traffic context. Key fields: uid, direction, protocol_name, protocol_num, flag_history. Security use: identify anomalous DHCP connections.
   - **direction**: `string`
   - **direction_id**: `int`
   - **flag_history**: `string`
@@ -1431,9 +2346,9 @@
   - **protocol_ver**: `string`
   - **protocol_ver_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — DHCP responder endpoint identity and network attributes. Key fields: ip, mac, hostname, interface_uid, location.country. Security use: identify DHCP server and investigate anomalous replies.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1456,15 +2371,15 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **is_renewal**: `boolean`
-- **lease_dur**: `int`
-- **message**: `string`
-- **metadata**: `struct`
+- **is_renewal**: `boolean` — Lease or session renewal indicator for DHCP activity events. Security use: identify anomalous renewal patterns.
+- **lease_dur**: `int` — This represents the length of the DHCP lease in seconds. This is present in DHCP Ack events
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata record for DHCP activity normalization and provenance. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: trace event origin and processing timeline.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -1483,14 +2398,14 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — DHCP client endpoint identity and network attachment details. Key fields: ip, mac, hostname, interface_uid, vpc_uid. Security use: identify requesting device during DHCP investigations.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1513,13 +2428,13 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **traffic**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **traffic**: `struct` — Network traffic volume and transfer counters for DHCP activity. Key fields: bytes, bytes_in, bytes_out, packets, packets_in. Security use: detect exfiltration or anomalous bandwidth spikes.
   - **bytes**: `bigint`
   - **bytes_in**: `bigint`
   - **bytes_missed**: `bigint`
@@ -1530,26 +2445,25 @@
   - **packets**: `bigint`
   - **packets_in**: `bigint`
   - **packets_out**: `bigint`
-- **transaction_uid**: `string`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **transaction_uid**: `string` — The unique identifier of the transaction. This is typically a random number generated from the client to associate a dhcp request/response pair
+- **type_name**: `string` — Event type name mapped from type_uid for DHCP activity. Security use: classify event semantics for alert triage.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `dns_activity`
 
 **URL:** https://schema.ocsf.io/1.5.0/classes/dns_activity
 
-**Description:** The table captures detailed information about various activities and actions within our systems. It includes unique identifiers for tracking data lineage, as well as details about the actions taken, associated activities, and their respective categories. This data can be used for analyzing user interactions, monitoring system performance, and understanding the context of different actions taken within applications. Additionally, it includes metadata and connection information that can aid in troubleshooting and enhancing system integrations.
-
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string` — The event activity name, as defined by the activity_id.
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
 - **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
 - **activity_name**: `string` — The event activity name, as defined by the activity_id.
-- **answers**: `array<struct>`
+- **answers**: `array<struct>` — DNS answer resource records with response metadata and payload. Key fields: type, class, ttl, rdata, packet_uid. Security use: detect suspicious DNS responses and tampering.
   - **class**: `string`
   - **packet_uid**: `int`
   - **type**: `string`
@@ -1557,12 +2471,12 @@
   - **flags**: `array<string>`
   - **rdata**: `string`
   - **ttl**: `int`
-- **app_name**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **connection_info**: `struct` — The network connection information.
+- **app_name**: `string` — The name of the application associated with the event or object
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **connection_info**: `struct` — Network connection metadata for DNS activity events. Key fields: uid, direction, protocol_name, protocol_num, protocol_ver_id. Security use: prioritize investigations and detect anomalous protocol behavior.
   - **direction**: `string`
   - **direction_id**: `int`
   - **flag_history**: `string`
@@ -1571,9 +2485,9 @@
   - **protocol_ver**: `string`
   - **protocol_ver_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct` — The responder (server) in a network connection.
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Responder endpoint identity for DNS activity destination. Key fields: ip, port, hostname, domain, uid. Security use: detect suspicious resolvers and destination infrastructure.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1596,13 +2510,13 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata and provenance timestamps. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: trace event lineage and processing history.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -1621,23 +2535,23 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **query**: `struct`
+- **query**: `struct` — DNS query request attributes for resolving a hostname and record type. Key fields: hostname, type, class, opcode, packet_uid. Security use: Detect suspicious domain lookups and DNS tunneling.
   - **class**: `string`
   - **packet_uid**: `int`
   - **type**: `string`
   - **hostname**: `string`
   - **opcode**: `string`
   - **opcode_id**: `int`
-- **raw_data**: `variant`
-- **rcode**: `string`
-- **rcode_id**: `int`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **rcode**: `string` — The DNS server response code, normalized to the caption of the rcode_id value. In the case of `Other`, it is defined by the event source
+- **rcode_id**: `int` — The normalized identifier of the DNS server response code. See RFC-6895 .
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Client endpoint identity and network attributes for DNS requests. Key fields: ip, port, hostname, uid, mac. Security use: trace source of suspicious DNS queries.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1660,13 +2574,13 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **traffic**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **traffic**: `struct` — Network transfer volume and direction metrics for DNS activity. Key fields: bytes, bytes_in, bytes_out, packets, packets_in. Security use: detect abnormal data exfiltration or tunneling patterns.
   - **bytes**: `bigint`
   - **bytes_in**: `bigint`
   - **bytes_missed**: `bigint`
@@ -1677,9 +2591,10 @@
   - **packets**: `bigint`
   - **packets_in**: `bigint`
   - **packets_out**: `bigint`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **type_name**: `string` — Event or finding type label derived from type_uid. Security use: quick triage.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `email_activity`
 
@@ -1687,21 +2602,21 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **direction**: `string`
-- **direction_id**: `int`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **direction**: `string` — The direction of the email, as defined by the direction_id value.
+- **direction_id**: `int` — The direction of the email relative to the scanning host or organization. Email scanned at an internet gateway might be characterized as inbound to the organization from the Internet, outbound from the organization to the Internet, or internal within the organization. Email scanned at a workstation might be characterized as inbound to, or outbound from the workstation.
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Destination server endpoint descriptor for email activity. Key fields: ip, port, hostname, domain, uid. Security use: detect suspicious responder hosts and egress.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1724,16 +2639,18 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **email**: `struct`
+- **email**: `struct` — Email object for recipient addressing context. Key fields: to. Security use: identify intended recipients in investigations.
   - **to**: `string`
-- **enrichments**: `array<struct>`
+  - **urls**: `array<struct>`
+    - **url_string**: `string`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **message**: `string`
-- **message_trace_uid**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **message_trace_uid**: `string` — The identifier that tracks a message that travels through multiple points of a messaging service
+- **metadata**: `struct` — Event metadata describing logging context, identifiers, and timestamps. Key fields: uid, correlation_uid, processed_time, modified_time, product.name. Security use: trace event provenance and processing timeline.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -1752,15 +2669,15 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **protocol_name**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **protocol_name**: `string` — The Protocol Name specifies the email communication protocol, such as SMTP, IMAP, or POP3
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Email sending client endpoint identity and network address context. Key fields: ip, hostname, domain, port, uid. Security use: attribute outbound email origin and detect spoofing.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -1783,15 +2700,16 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event type label mapped from type_uid, normalized for consistent categorization. Security use: triage and classification of email activity events.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `entity_management`
 
@@ -1799,14 +2717,14 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **access_list**: `array<string>`
-- **access_mask**: `int`
-- **action**: `string`
-- **action_id**: `int`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **access_list**: `array<string>` — Requested access rights list for an entity management record. Security use: authorization evaluation and auditing.
+- **access_mask**: `int` — Platform-native access rights bitmask value. Security use: authorization checks and privilege enforcement.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity originator identity and execution context for entity actions. Key fields: user.uid, user.name, app_name, idp.protocol_name, process.cmd_line. Security use: attribute actions to principals and processes.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -1842,13 +2760,69 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call request and response metadata for entity actions. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect abuse, errors, and anomalous operations.
   - **operation**: `string`
   - **request**: `struct`
     - **data**: `variant`
@@ -1858,11 +2832,14 @@
     - **data**: `variant`
     - **error**: `string`
     - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The class of the event.
+- **cloud**: `struct` — Cloud account and location context for managed entities. Key fields: account.uid, account.name, provider, region, zone. Security use: scope detections to tenant and region.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -1871,8 +2848,8 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **comment**: `string`
-- **device**: `struct`
+- **comment**: `string` — The user provided comment about why the entity was changed
+- **device**: `struct` — Networked host identity and management posture metadata for an addressable device. Key fields: uid, hostname, ip, domain, risk_score. Security use: asset inventory and risk triage.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -1896,19 +2873,21 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **entity**: `struct`
+- **entity**: `struct` — Managed entity reference and attributes targeted by an action. Key fields: uid, name, type_id, user.uid, policies.uid. Security use: track identity, policy, and access changes.
   - **name**: `string`
   - **uid**: `string`
   - **data**: `variant`
   - **email**: `struct`
     - **to**: `string`
+    - **urls**: `array<struct>`
+      - **url_string**: `string`
   - **group**: `struct`
     - **name**: `string`
     - **privileges**: `string`
@@ -1934,13 +2913,18 @@
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
   - **version**: `string`
-- **entity_result**: `struct`
+- **entity_result**: `struct` — Updated managed entity state after administrative change. Key fields: uid, name, type_id, version, policies.*. Security use: audit entity modifications.
   - **name**: `string`
   - **uid**: `string`
   - **data**: `variant`
   - **email**: `struct`
     - **to**: `string`
+    - **urls**: `array<struct>`
+      - **url_string**: `string`
   - **group**: `struct`
     - **name**: `string`
     - **privileges**: `string`
@@ -1966,9 +2950,12 @@
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
   - **version**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event or finding metadata snapshot. Key fields: uid, correlation_uid, logged_time, modified_time, product.*. Security use: event traceability and integrity checks.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -1987,22 +2974,23 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type name mapped from type_uid. Security use: normalize event taxonomy labels.
+- **type_uid**: `bigint` — The type of the event.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `file_activity`
 
@@ -2010,14 +2998,14 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **access_mask**: `int`
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **access_mask**: `int` — Platform-native access mask value representing requested or granted permissions. Security use: permission auditing and access anomaly detection.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity source actor identity and execution context. Key fields: user.uid, user.name, app_name, process.pid, process.session.uid. Security use: attribute actions to principals and sessions.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -2053,18 +3041,74 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **component**: `string`
-- **device**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **component**: `string` — The name or relative pathname of a sub-component of the data object, if applicable. For example: attachment.doc , attachment.zip/bad.doc , or part.mime/part.cab/part.uue/part.doc .
+- **device**: `struct` — Target device identity and posture metadata for a file activity. Key fields: uid, hostname, ip, domain, risk_score. Security use: device attribution and risk triage.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -2088,19 +3132,52 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **file**: `struct`
+- **file**: `struct` — Target file descriptor for the activity event. Key fields: name, path. Security use: detect suspicious access to sensitive file locations.
   - **name**: `string`
   - **path**: `string`
-- **file_diff**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+  - **accessor**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **creator**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **owner**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+- **file_diff**: `string` — File content differences used for change detection. For example, a common use case is to identify itemized changes within INI or configuration/property setting values
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata snapshot with product, timing, and identifiers. Key fields: uid, correlation_uid, original_time, processed_time, product.name. Security use: detect tampering and validate event provenance.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -2119,36 +3196,39 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type name mapped from type_uid. Security use: quick triage and alert labeling.
+- **type_uid**: `bigint` — The resulting file object when the activity was allowed and successful.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
-### Table: `group_management`
+### Table: `file_hosting_activity`
 
-**URL:** https://schema.ocsf.io/1.5.0/classes/group_management
+**URL:** https://schema.ocsf.io/1.5.0/classes/file_hosting_activity
+
+**Description:** File Hosting Activity events report the actions taken by file management applications, including file sharing servers like Sharepoint and services such as Box, MS OneDrive, Google Drive, or network file share services.
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **_silver_table**: `string` — The name of the silver table that this row was generated from.
+- **action**: `string` — This field must exactly match the caption associated with the `action_id` integer, as defined in the OCSF action_id enum, unless the value is 99, in which case set the resulting value to the known action discovered during the action_id evaluation.
+- **action_id**: `int` — This field represents the specific outcome of the logged event. First, check for explicit action or outcome fields with names like `action`, `outcome`, `result`, `disposition`, or `status`. Match values (case-insensitive): `allow`, `permit`, `accept`, `grant`, or `success` maps to action_id=1 (Allowed); `deny`, `block`, `reject`, `drop`, or `fail` maps to action_id=2 (Denied). If no explicit field exists, check if the log source is only reporting single outcomes (e.g., a firewall configured to `log only denies` means all logged events show denied, and are therefore action_id=2). You can also infer from context: HTTP status codes 2xx/3xx indicate action_id=1, while 4xx/5xx indicate action_id=2; authentication events with `Login successful` are action_id=1, while `Login failed` are action_id=2; in AWS CloudTrail, absence of `errorCode` field indicates action_id=1. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If you can categorically identify the action that took place, but it is not represented by an enum caption either exactly or semantically then treat it as medium confidence and assign the resulting enum integer as 99 (Other). If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **activity_id**: `int` — This is an integer representation of the specific activity or event that took place during the file hosting activity event in the record. Determine the correct value by comparing the record text with the enum captions. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the activity is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — The actor object describes details about the user/role/process that was the source of the activity. Note that this is not the threat actor of a campaign but may be part of a campaign.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -2184,137 +3264,73 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
-  - **operation**: `string`
-  - **request**: `struct`
-    - **data**: `variant`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
     - **uid**: `string`
-  - **response**: `struct`
-    - **code**: `int`
-    - **data**: `variant`
-    - **error**: `string`
-    - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
-  - **account**: `struct`
-    - **name**: `string`
-    - **uid**: `string`
-  - **cloud_partition**: `string`
-  - **project_uid**: `string`
-  - **provider**: `string`
-  - **region**: `string`
-  - **zone**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
-  - **data**: `variant`
-  - **desc**: `string`
-  - **name**: `string`
-  - **value**: `string`
-- **group**: `struct`
-  - **name**: `string`
-  - **privileges**: `string`
-  - **type**: `string`
-  - **uid**: `string`
-- **message**: `string`
-- **metadata**: `struct`
-  - **correlation_uid**: `string`
-  - **event_code**: `string`
-  - **log_level**: `string`
-  - **log_name**: `string`
-  - **log_provider**: `string`
-  - **log_version**: `string`
-  - **logged_time**: `timestamp`
-  - **modified_time**: `timestamp`
-  - **original_time**: `string`
-  - **processed_time**: `timestamp`
-  - **product**: `struct`
-    - **name**: `string`
-    - **vendor_name**: `string`
-    - **version**: `string`
-  - **tags**: `variant`
-  - **tenant_uid**: `string`
-  - **uid**: `string`
-  - **version**: `string`
-- **observables**: `array<struct>`
-  - **name**: `string`
-  - **type**: `string`
-  - **value**: `string`
-- **privileges**: `array<string>`
-- **raw_data**: `variant`
-- **resource**: `struct`
-  - **hostname**: `string`
-  - **ip**: `string`
-  - **name**: `string`
-  - **uid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
-  - **domain**: `string`
-  - **hostname**: `string`
-  - **instance_uid**: `string`
-  - **interface_name**: `string`
-  - **interface_uid**: `string`
-  - **ip**: `string`
-  - **name**: `string`
-  - **port**: `int`
-  - **svc_name**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-  - **location**: `struct`
-    - **city**: `string`
-    - **continent**: `string`
-    - **country**: `string`
-    - **lat**: `float`
-    - **long**: `float`
-    - **postal_code**: `string`
-  - **mac**: `string`
-  - **vpc_uid**: `string`
-  - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
-- **user**: `struct`
-  - **has_mfa**: `boolean`
-  - **name**: `string`
-  - **type**: `string`
-  - **type_id**: `int`
-  - **uid**: `string`
-
-### Table: `http_activity`
-
-**URL:** https://schema.ocsf.io/1.5.0/classes/http_activity
-
-#### Table Schema
-
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **app_name**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **connection_info**: `struct`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **category_name**: `string` — This field must exactly match the caption associated with the `category_uid` integer, as defined in the OCSF category_uid enum.
+- **category_uid**: `int` — The category unique identifier of the event. For file hosting activity, the category_uid is always 6.
+- **class_name**: `string` — This field must exactly match the caption associated with the `class_uid` integer, as defined in the OCSF class_uid enum.
+- **class_uid**: `int` — This field captures a unique identifier for the class of the event. For file hosting activity, the class_uid is always 6006.
+- **connection_info**: `struct` — The network connection information associated with the file hosting activity, including details about the connection used to access the file hosting service.
   - **direction**: `string`
   - **direction_id**: `int`
   - **flag_history**: `string`
@@ -2323,9 +3339,9 @@
   - **protocol_ver**: `string`
   - **protocol_ver_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — This field must exactly match the caption associated with the `disposition_id` integer, as defined in the OCSF disposition_id enum, unless the value is 99, in which case set the resulting value to the known disposition discovered during the disposition_id evaluation.
+- **disposition_id**: `int` — This is an integer representation of the disposition as defined by a security control. Map this field when either the OCSF event class is a `finding` or when a record is the result of a third party system, that has made a determination about a specific event. For instance, if the record demonstrates an anti-virus outcome of `malicious` against a specific process, then attempt to match the outcome with a disposition_id. To determined the correct enum integer value, use the enum caption and/or description and scan the record for either an explicit match (case insensitive), or an implicit match based on the record type, `result`, `outcome` or similar. If a record demonstrates a disposition outcome,  and the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to. Records that do not exhibit any disposition outcome should be set to 0.
+- **dst_endpoint**: `struct` — This field represents the network endpoint that received or responded to the file hosting activity. If available, use the data dictionary from the source vendor to determine which fields are relevant to populate in the dst_endpoint sub-fields. Values can typically be sourced from vendor fields like `destinationHostname`, `RemoteHostname`, or `addr`. Cloud logs may report fields like `resourceName`, `instance_name`, `dst_ip` or `dst_address`. Map the sub-fields relevant to the event class, leaving other sub-fields empty when no match is available.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -2348,15 +3364,475 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>`
+- **enrichments**: `array<struct>` — This field contains any additional data or context related to the event, which is often provided by external systems or data enrichment tools. It can be mapped from vendor fields like `additional_info`, `context_data`, or `enriched_data`. This field is optional and of array type. For example, it might include threat intelligence data related to an IP address involved in the event.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **file**: `struct`
+- **expiration_time**: `timestamp` — The expiration time associated with a shared file or link. This is typically mapped from vendor fields like `expiration_time`, `link_expiry`, or `share_expiration`. The resultant timestamp should be formatted in ISO 8601 format.
+- **file**: `struct` — The file that is the target of the file hosting activity. This is typically mapped from vendor fields like `file_name`, `object_name`, `item_name`, or `resource_name`. The file object should contain at minimum the file name.
   - **name**: `string`
   - **path**: `string`
-- **firewall_rule**: `struct`
+  - **accessor**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **creator**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **owner**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+- **file_result**: `struct` — The resulting file after the file hosting activity, such as after a rename or copy operation. This is the new state of the file after the action was performed.
+  - **name**: `string`
+  - **path**: `string`
+  - **accessor**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **creator**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **owner**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+- **message**: `string` — Contains a human-readable description of the event, including key details. This field is typically populated from vendor fields like `description`, `log_message`, `message` or `event_message`. This field is recommended and is of string type. For example, a message might read `Firewall rule triggered: outgoing traffic to port 22 blocked`.
+- **metadata**: `struct` — The metadata field holds information about the event record itself. It captures the current event type that is being mapped, processing time, source and sourcetype of the log source amongst other details.
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>` — The observables associated with the event or a finding.
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **raw_data**: `variant` — The raw_data field is designed to hold the raw, unaltered data from the event log. This field should be populated from the existing `data` field if available. Leave empty otherwise.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The severity identifier of the incident. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **share**: `string` — The name of the file share, such as a network share or cloud folder being accessed.
+- **share_type**: `string` — The share type, normalized to the caption of the share_type_id value. In the case of `Other`, it is defined by the event source.
+- **share_type_id**: `int` — The type identifier of the file share. If the record contains an explicit, case-insensitive match of a caption, assign the corresponding enum integer.
+- **src_endpoint**: `struct` — This field represents the network initiator or client that instigates the file hosting activity. If available, use the data dictionary from the source vendor to determine which fields are relevant to populate in the src_endpoint sub-fields. Values are typically sourced from vendor fields like `workstation`, `device`, `device_name`, `device_hostname`, `computer`, or `client`. Map the sub-fields relevant to the event class, leaving other sub-fields empty when no match is available.
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string` — This field must exactly match the caption associated with the `status_id` integer, as defined in the OCSF status_id enum, unless the value is 99, in which case set the resulting value to the known status discovered during the status_id evaluation.
+- **status_code**: `string` — The status_code field stores a coded representation of the event`s status. Vendor fields like `status_code` or `status`, `errorCode` can be used for mapping. Only populate this field if a status code is explicitly available in the vendor log. If the status code is not available, then do not set it at all.
+- **status_detail**: `string` — The status_detail field provides additional information or sub-status associated with the event, offering further context to the `status_code` field. This field can be mapped from vendor fields such as `status_detail` or `event_substatus`. If this detailed status is not available, then do not set it at all.
+- **status_id**: `int` — The status_id integer field is used to represent a coded value for the outcome or status of the event. It could be typically mapped from vendor fields like `status_code`, `status_id`, or `status`. If available, the vendor data dictionary may be required to translate a status code or id into its related OCSF enum caption equivalent, before finally setting the resulting value to the corresponding OCSF status_id integer value. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match the status if found but it is not represented in the current enum list, set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **time**: `timestamp` — The time field captures the exact timestamp when the event occurred. It is a required field and should be populated with a date-time string in ISO 8601 format. The resulting field should be a direct mapping from an existing timestamp field already called `time` in the given input data.
+- **timezone_offset**: `int` — This field is intended to capture the difference between the event timestamp and Coordinated Universal Time (UTC), typically derived from vendor fields such as `time_offset` or `utc_offset`. It is represented as a string, in the `+HH:MM` or `-HH:MM` format. For instance, `+05:30` corresponds to Indian Standard Time. While this field is not mandatory, its inclusion is recommended.
+- **type**: `string` — The event/finding type name, as defined by the type_uid.
+- **type_name**: `string` — This field must exactly match the caption associated with the `type_uid` integer, as defined in the OCSF type_uid enum, unless the value is 99, in which case set the resulting value to the known type discovered during the type_uid evaluation.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — This databricks variant field serves as a container for any data from the upstream input that doesn`t correspond directly to a defined field. It should be computed with data or context not mapped to an OCSF schema field. Note that when creating a VARIANT type field in Databricks, specific syntax requirements apply. The field is optional, meaning it can be left empty if all data from the vendor logs was mapped to the appropriate OCSF event class fields.
+
+### Table: `fulltext_testing`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/fulltext_testing
+
+#### Table Schema
+
+- **id**: `bigint`
+- **text_a**: `string`
+- **text_b**: `string`
+
+### Table: `group_management`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/group_management
+
+#### Table Schema
+
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity initiator identity and execution context for group management actions. Key fields: user.uid, user.name, app_uid, process.uid, idp.protocol_name. Security use: attribute actions to principals and sessions.
+  - **app_name**: `string`
+  - **app_uid**: `string`
+  - **authorizations**: `array<struct>`
+    - **decision**: `string`
+  - **idp**: `struct`
+    - **domain**: `string`
+    - **name**: `string`
+    - **protocol_name**: `string`
+    - **tenant_uid**: `string`
+    - **uid**: `string`
+  - **process**: `struct`
+    - **cmd_line**: `string`
+    - **cpid**: `string`
+    - **name**: `string`
+    - **pid**: `int`
+    - **session**: `struct`
+      - **created_time**: `timestamp`
+      - **credential_uid**: `string`
+      - **expiration_reason**: `string`
+      - **expiration_time**: `timestamp`
+      - **is_mfa**: `boolean`
+      - **is_remote**: `boolean`
+      - **is_vpn**: `boolean`
+      - **issuer**: `string`
+      - **terminal**: `string`
+      - **uid**: `string`
+      - **uid_alt**: `string`
+      - **uuid**: `string`
+    - **uid**: `string`
+    - **user**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
+  - **user**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call request and response context for group management actions. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect suspicious calls and repeated failures.
+  - **operation**: `string`
+  - **request**: `struct`
+    - **data**: `variant`
+    - **uid**: `string`
+  - **response**: `struct`
+    - **code**: `int`
+    - **data**: `variant`
+    - **error**: `string`
+    - **message**: `string`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The class of the event.
+- **cloud**: `struct` — Cloud account context for group management records. Key fields: account.uid, account.name, provider, region, zone. Security use: attribute access events to cloud accounts.
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+  - **cloud_partition**: `string`
+  - **project_uid**: `string`
+  - **provider**: `string`
+  - **region**: `string`
+  - **zone**: `string`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **group**: `struct` — Target group descriptor for a group management event. Key fields: name, uid, type, privileges. Security use: validate authorization changes and detect privilege escalation.
+  - **name**: `string`
+  - **privileges**: `string`
+  - **type**: `string`
+  - **uid**: `string`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata snapshot for group management actions. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: timeline integrity and event traceability.
+  - **correlation_uid**: `string`
+  - **event_code**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
+    - **name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **privileges**: `array<string>` — Group privilege assignments for access control decisions and audits. Security use: authorize group actions and detect privilege changes.
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **resource**: `struct` — Privilege target resource descriptor for access control checks. Key fields: uid, name, hostname, ip. Security use: enforce authorization and audit access scope.
+  - **hostname**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **uid**: `string`
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Privilege grant source endpoint identity and network context. Key fields: hostname, ip, domain, port, uid. Security use: trace origin of group privilege changes.
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type name mapped from type_uid for consistent labeling. Security use: normalize event type labeling.
+- **type_uid**: `bigint` — The type of the event.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **user**: `struct` — User identity involved in group membership change. Key fields: uid, name, type, type_id, has_mfa. Security use: detect risky access changes and weak authentication.
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **_silver_table**: `string`
+
+### Table: `http_activity`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/http_activity
+
+#### Table Schema
+
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **app_name**: `string` — The name of the application that initiated the DHCP connection
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **connection_info**: `struct` — Network connection metadata for captured HTTP traffic. Key fields: uid, direction, protocol_name, protocol_num, protocol_ver. Security use: network flow triage and anomaly detection.
+  - **direction**: `string`
+  - **direction_id**: `int`
+  - **flag_history**: `string`
+  - **protocol_name**: `string`
+  - **protocol_num**: `int`
+  - **protocol_ver**: `string`
+  - **protocol_ver_id**: `int`
+  - **uid**: `string`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Responder endpoint identity and network coordinates for HTTP activity. Key fields: ip, port, hostname, domain, location.country. Security use: detect suspicious destinations and policy violations.
+  - **domain**: `string`
+  - **hostname**: `string`
+  - **instance_uid**: `string`
+  - **interface_name**: `string`
+  - **interface_uid**: `string`
+  - **ip**: `string`
+  - **name**: `string`
+  - **port**: `int`
+  - **svc_name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+  - **location**: `struct`
+    - **city**: `string`
+    - **continent**: `string`
+    - **country**: `string`
+    - **lat**: `float`
+    - **long**: `float`
+    - **postal_code**: `string`
+  - **mac**: `string`
+  - **vpc_uid**: `string`
+  - **zone**: `string`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **file**: `struct` — Target file metadata for remote activity. Key fields: name, path. Security use: detect suspicious file access.
+  - **name**: `string`
+  - **path**: `string`
+  - **accessor**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **creator**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **owner**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+- **firewall_rule**: `struct` — Firewall rule metadata for HTTP activity decisions and evaluation. Key fields: uid, name, category, type, version. Security use: trace policy rule triggering and changes.
   - **name**: `string`
   - **uid**: `string`
   - **category**: `string`
@@ -2369,7 +3845,7 @@
   - **match_location**: `string`
   - **rate_limit**: `int`
   - **sensitivity**: `string`
-- **http_cookies**: `array<struct>`
+- **http_cookies**: `array<struct>` — HTTP cookie metadata and values observed in requests or responses. Key fields: name, value, domain, path, expiration_time. Security use: detect session hijacking and suspicious tracking behavior.
   - **domain**: `string`
   - **expiration_time**: `timestamp`
   - **http_only**: `boolean`
@@ -2380,31 +3856,31 @@
   - **samesite**: `string`
   - **secure**: `boolean`
   - **value**: `string`
-- **http_request**: `struct`
+- **http_request**: `struct` — Web request attributes captured for server access events. Key fields: http_method, url, args, http_headers.*, user_agent. Security use: detect suspicious requests and header anomalies.
   - **args**: `string`
-  - **body_length**: `int`
+  - **body_length**: `bigint`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
   - **http_method**: `string`
-  - **length**: `int`
+  - **length**: `bigint`
   - **referrer**: `string`
   - **url**: `string`
   - **user_agent**: `string`
   - **version**: `string`
-- **http_response**: `struct`
-  - **body_length**: `int`
+- **http_response**: `struct` — Web server HTTP response metadata and outcome details. Key fields: code, status, body_length, length, http_headers.*. Security use: detect anomalous status codes and header patterns.
+  - **body_length**: `bigint`
   - **code**: `int`
   - **content_type**: `string`
   - **http_headers**: `array<struct>`
     - **name**: `string`
     - **value**: `string`
   - **latency**: `int`
-  - **length**: `int`
+  - **length**: `bigint`
   - **message**: `string`
   - **status**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata for timing, source context, and identifiers. Key fields: uid, correlation_uid, logged_time, processed_time, product.*. Security use: link related events and validate provenance.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -2423,19 +3899,19 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **policy**: `struct`
+- **policy**: `struct` — The Policy object describes the policies that are applicable. Policy attributes provide traceability to the operational state of the security product at the time that the event was captured, facilitating forensics, troubleshooting, and policy tuning/adjustments.
   - **is_applied**: `boolean`
   - **name**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Client endpoint identity and network attributes for the HTTP connection initiator. Key fields: ip, port, hostname, mac, uid. Security use: attribute client source in investigations.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -2458,13 +3934,13 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **traffic**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **traffic**: `struct` — Network traffic volume metrics at observation time. Key fields: bytes, bytes_in, bytes_out, packets, packets_in. Security use: detect anomalous transfer size and direction.
   - **bytes**: `bigint`
   - **bytes_in**: `bigint`
   - **bytes_missed**: `bigint`
@@ -2475,46 +3951,167 @@
   - **packets**: `bigint`
   - **packets_in**: `bigint`
   - **packets_out**: `bigint`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **type_name**: `string` — Event type name derived from type_uid for http_activity classification. Security use: consistent labeling for detection rules.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
-### Table: `kernel_extension_activity`
+### Table: `incident_finding`
 
-**URL:** https://schema.ocsf.io/1.5.0/classes/kernel_extension_activity
+**URL:** https://schema.ocsf.io/1.5.0/classes/incident_finding
+
+**Description:** An Incident Finding reports the creation, update, or closure of security incidents as a result of detections and/or analytics. Note: Incident Finding implicitly includes the incident profile and it should be added to the metadata.profiles[] array.
 
 #### Table Schema
 
-- **dasl_id**: `string`
-- **time**: `timestamp`
-- **class_name**: `string`
-- **type_uid**: `bigint`
-- **category_name**: `string`
-- **metadata**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **_silver_table**: `string` — The name of the silver table that this row was generated from.
+- **action**: `string` — This field must exactly match the caption associated with the `action_id` integer, as defined in the OCSF action_id enum, unless the value is 99, in which case set the resulting value to the known action discovered during the action_id evaluation.
+- **action_id**: `int` — This field represents the specific outcome of the logged event. First, check for explicit action or outcome fields with names like `action`, `outcome`, `result`, `disposition`, or `status`. Match values (case-insensitive): `allow`, `permit`, `accept`, `grant`, or `success` maps to action_id=1 (Allowed); `deny`, `block`, `reject`, `drop`, or `fail` maps to action_id=2 (Denied). If no explicit field exists, check if the log source is only reporting single outcomes (e.g., a firewall configured to `log only denies` means all logged events show denied, and are therefore action_id=2). You can also infer from context: HTTP status codes 2xx/3xx indicate action_id=1, while 4xx/5xx indicate action_id=2; authentication events with `Login successful` are action_id=1, while `Login failed` are action_id=2; in AWS CloudTrail, absence of `errorCode` field indicates action_id=1. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If you can categorically identify the action that took place, but it is not represented by an enum caption either exactly or semantically then treat it as medium confidence and assign the resulting enum integer as 99 (Other). If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **activity_id**: `int` — This is an integer representation of the specific activity or event that took place during the incident finding event in the record. Determine the correct value by comparing the record text with the enum captions. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the activity is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **assignee**: `struct` — The user assigned to the incident. This is typically mapped from vendor fields like `assignee`, `owner`, `assigned_to`, or `responsible_user`.
+  - **has_mfa**: `boolean`
+  - **name**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
   - **uid**: `string`
-  - **profiles**: `array<string>`
-  - **product**: `struct`
-    - **vendor_name**: `string`
+  - **account**: `struct`
     - **name**: `string`
+    - **uid**: `string`
+- **assignee_group**: `struct` — The group assigned to the incident. This is typically mapped from vendor fields like `assigned_group`, `team`, or `owner_group`.
+  - **name**: `string`
+  - **privileges**: `string`
+  - **type**: `string`
+  - **uid**: `string`
+- **attacks**: `array<struct>` — The MITRE ATT&CK® tactics, techniques, and sub-techniques associated with the incident.
+  - **sub_technique**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **src_url**: `string`
+  - **tactic**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **src_url**: `string`
+  - **tactics**: `array<struct>`
+    - **name**: `string`
+    - **uid**: `string`
+    - **src_url**: `string`
+  - **technique**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **src_url**: `string`
+  - **version**: `string`
+- **category_name**: `string` — This field must exactly match the caption associated with the `category_uid` integer, as defined in the OCSF category_uid enum.
+- **category_uid**: `int` — The category unique identifier of the event. For incident finding, the category_uid is always 2.
+- **class_name**: `string` — This field must exactly match the caption associated with the `class_uid` integer, as defined in the OCSF class_uid enum.
+- **class_uid**: `int` — This field captures a unique identifier for the class of the event. For incident finding, the class_uid is always 2005.
+- **comment**: `string` — A comment or note associated with the incident finding. This is typically mapped from vendor fields like `comment`, `notes`, or `description`.
+- **confidence**: `string` — This field must exactly match the caption associated with the `confidence_id` integer, as defined in the OCSF confidence_id enum, unless the value is 99, in which case set the resulting value to the known confidence discovered during the confidence_id evaluation.
+- **confidence_id**: `int` — The `confidence_id` field stores the coded representation of the confidence level associated with an incident finding. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **confidence_score**: `int` — This field holds a numerical score that quantifies the confidence level associated with an incident finding. It is usually derived from fields named `confidence_score`, `confidence_rating`, or similar.
+- **desc**: `string` — A description of the incident. This is typically mapped from vendor fields like `description`, `summary`, or `incident_description`.
+- **disposition**: `string` — This field must exactly match the caption associated with the `disposition_id` integer, as defined in the OCSF disposition_id enum, unless the value is 99, in which case set the resulting value to the known disposition discovered during the disposition_id evaluation.
+- **disposition_id**: `int` — This is an integer representation of the disposition as defined by a security control. Map this field when either the OCSF event class is a `finding` or when a record is the result of a third party system, that has made a determination about a specific event. For instance, if the record demonstrates an anti-virus outcome of `malicious` against a specific process, then attempt to match the outcome with a disposition_id. To determined the correct enum integer value, use the enum caption and/or description and scan the record for either an explicit match (case insensitive), or an implicit match based on the record type, `result`, `outcome` or similar. If a record demonstrates a disposition outcome,  and the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to. Records that do not exhibit any disposition outcome should be set to 0.
+- **end_time**: `timestamp` — The timestamp marking the end of the incident. This value can be mapped from fields like `resolved_time`, `closed_time`, or `end_time`. If available the resultant timestamp should be formatted in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.sssZ), otherwise leave empty.
+- **enrichments**: `array<struct>` — This field contains any additional data or context related to the event, which is often provided by external systems or data enrichment tools. It can be mapped from vendor fields like `additional_info`, `context_data`, or `enriched_data`. This field is optional and of array type. For example, it might include threat intelligence data related to an IP address involved in the event.
+  - **data**: `variant`
+  - **desc**: `string`
+  - **name**: `string`
+  - **value**: `string`
+- **finding_info_list**: `array<struct>` — A list of finding_info objects that are associated with the incident. Each element represents a distinct finding that contributed to or is part of this incident.
+  - **analytic**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+    - **category**: `string`
+    - **desc**: `string`
+    - **related_analytics**: `array<variant>`
+    - **type**: `string`
+    - **type_id**: `int`
     - **version**: `string`
-  - **tenant_uid**: `string`
+  - **attacks**: `array<struct>`
+    - **sub_technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactic**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **tactics**: `array<struct>`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **technique**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+      - **src_url**: `string`
+    - **version**: `string`
+  - **created_time**: `timestamp`
+  - **data_sources**: `string`
+  - **desc**: `string`
+  - **first_seen_time**: `timestamp`
+  - **last_seen_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **src_url**: `string`
+  - **title**: `string`
+  - **uid**: `string`
+- **impact**: `string` — This field must exactly match the caption string associated with the `impact_id` value, as defined in the OCSF enumeration for its specific class, unless the value is 99, in which case set the resulting value to the known impact discovered during the impact_id evaluation.
+- **impact_id**: `int` — The `impact_id` field captures the severity level of the incident as an integer. This is typically mapped from fields such as `severity_code` or `impact_code` in vendor logs. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **impact_score**: `int` — The `impact_score` field represents a numerical score indicating the severity or impact of the incident. This field could be mapped from similar scoring fields in vendor logs such as `severity_score` or `risk_score`.
+- **is_suspected_breach**: `boolean` — Indicates whether the incident is suspected to be a data breach. Set this boolean field to `true` if the incident involves a suspected data breach, otherwise set to `false`.
+- **message**: `string` — Contains a human-readable description of the event, including key details. This field is typically populated from vendor fields like `description`, `log_message`, `message` or `event_message`. This field is recommended and is of string type. For example, a message might read `Firewall rule triggered: outgoing traffic to port 22 blocked`.
+- **metadata**: `struct` — The metadata field holds information about the event record itself. It captures the current event type that is being mapped, processing time, source and sourcetype of the log source amongst other details.
+  - **correlation_uid**: `string`
   - **event_code**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **class_uid**: `int`
-- **actor**: `struct`
-  - **process**: `struct`
-    - **tid**: `int`
-    - **pid**: `int`
-- **category_uid**: `int`
-- **activity_id**: `int`
-- **driver**: `struct`
-  - **file**: `struct`
-    - **path**: `string`
+  - **log_level**: `string`
+  - **log_name**: `string`
+  - **log_provider**: `string`
+  - **log_version**: `string`
+  - **logged_time**: `timestamp`
+  - **modified_time**: `timestamp`
+  - **original_time**: `string`
+  - **processed_time**: `timestamp`
+  - **product**: `struct`
     - **name**: `string`
-- **type_name**: `string`
-- **start_time**: `timestamp`
-- **activity_name**: `string`
+    - **vendor_name**: `string`
+    - **version**: `string`
+  - **tags**: `variant`
+  - **tenant_uid**: `string`
+  - **uid**: `string`
+  - **version**: `string`
+- **observables**: `array<struct>` — The observables associated with the event or a finding.
+  - **name**: `string`
+  - **type**: `string`
+  - **value**: `string`
+- **priority**: `string` — The priority of the incident, normalized to the caption of the priority_id value. The resulting value must exactly match the caption associated with the `priority_id` integer.
+- **priority_id**: `int` — The priority identifier of the incident. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **raw_data**: `variant` — The raw_data field is designed to hold the raw, unaltered data from the event log. This field should be populated from the existing `data` field if available. Leave empty otherwise.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The severity identifier of the incident. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **src_url**: `string` — The URL pointing to the source of the incident finding. This is typically a link to the incident in the originating security product`s console or dashboard.
+- **start_time**: `timestamp` — This field captures the time when the incident was first opened or detected. It is typically mapped from fields like `created_at`, `opened_time`, or `start_time`. The resultant timestamp should be formatted in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.sssZ).
+- **status**: `string` — The normalized status of the incident. The resulting value must exactly match the caption associated with the `status_id` integer, as defined in the OCSF status_id enum caption, unless the value is 99, in which case set the resulting value to the known status discovered during the status_id evaluation.
+- **status_code**: `string` — The status_code field stores a coded representation of the event`s status. Vendor fields like `status_code` or `status`, `errorCode` can be used for mapping. Only populate this field if a status code is explicitly available in the vendor log. If the status code is not available, then do not set it at all.
+- **status_detail**: `string` — The status_detail field provides additional information or sub-status associated with the event, offering further context to the `status_code` field. This field can be mapped from vendor fields such as `status_detail` or `event_substatus`. If this detailed status is not available, then do not set it at all.
+- **status_id**: `int` — This is an integer representation of the specific status of the incident. Determine the correct value by comparing the record text with the enum captions. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the status is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
+- **tickets**: `array<struct>` — A list of tickets associated with the incident.
+  - **src_url**: `string`
+  - **title**: `string`
+  - **type**: `string`
+  - **type_id**: `int`
+  - **uid**: `string`
+- **time**: `timestamp` — The time field captures the exact timestamp when the event occurred. It is a required field and should be populated with a date-time string in ISO 8601 format. The resulting field should be a direct mapping from an existing timestamp field already called `time` in the given input data.
+- **timezone_offset**: `int` — This field is intended to capture the difference between the event timestamp and Coordinated Universal Time (UTC), typically derived from vendor fields such as `time_offset` or `utc_offset`. It is represented as a string, in the `+HH:MM` or `-HH:MM` format. For instance, `+05:30` corresponds to Indian Standard Time. While this field is not mandatory, its inclusion is recommended.
+- **type**: `string` — The event/finding type name, as defined by the type_uid.
+- **type_name**: `string` — This field must exactly match the caption associated with the `type_uid` integer, as defined in the OCSF type_uid enum, unless the value is 99, in which case set the resulting value to the known type discovered during the type_uid evaluation.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — This databricks variant field serves as a container for any data from the upstream input that doesn`t correspond directly to a defined field. It should be computed with data or context not mapped to an OCSF schema field. Note that when creating a VARIANT type field in Databricks, specific syntax requirements apply. The field is optional, meaning it can be left empty if all data from the vendor logs was mapped to the appropriate OCSF event class fields.
+- **vendor_attributes**: `struct` — Vendor-specific attributes that do not map to standard OCSF attributes.
+  - **severity**: `string`
+  - **severity_id**: `int`
+- **verdict**: `string` — The normalized verdict of the incident. The resulting value must exactly match the caption associated with the `verdict_id` integer.
+- **verdict_id**: `int` — The normalized verdict identifier of the incident. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
 
 ### Table: `network_activity`
 
@@ -2522,17 +4119,17 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The class unique identifier of the event.
+- **cloud**: `struct` — Cloud account context for the activity, capturing provider and deployment location. Key fields: account.uid, account.name, provider, region, zone. Security use: validate tenant scope and region restrictions.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -2541,7 +4138,7 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **connection_info**: `struct`
+- **connection_info**: `struct` — Network traffic connection metadata capturing protocol and direction attributes. Key fields: uid, direction, protocol_name, protocol_num, protocol_ver. Security use: triage suspicious flows and validate protocol compliance.
   - **direction**: `string`
   - **direction_id**: `int`
   - **flag_history**: `string`
@@ -2550,9 +4147,9 @@
   - **protocol_ver**: `string`
   - **protocol_ver_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Destination endpoint descriptor for network traffic. Key fields: ip, port, hostname, domain, mac. Security use: detect malicious destinations and policy violations.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -2575,14 +4172,14 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **end_time**: `timestamp`
-- **enrichments**: `array<struct>`
+- **end_time**: `timestamp` — The end time of a time period, or the time of the most recent event included in the aggregate event
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata attributes and product identifiers for normalization. Key fields: correlation_uid, uid, logged_time, product.name, tags. Security use: investigation and alert triage.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -2601,19 +4198,19 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **policy**: `struct`
+- **policy**: `struct` — The Policy object describes the policies that are applicable. Policy attributes provide traceability to the operational state of the security product at the time that the event was captured, facilitating forensics, troubleshooting, and policy tuning/adjustments.
   - **is_applied**: `boolean`
   - **name**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Source network endpoint identity and addressing for outbound traffic attribution. Key fields: ip, port, hostname, mac, interface_uid. Security use: trace origin for network threat investigations.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -2636,14 +4233,14 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **start_time**: `timestamp`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **traffic**: `struct`
+- **start_time**: `timestamp` — The start time of a time period, or the time of the least recent event included in the aggregate event
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **traffic**: `struct` — Network traffic volume and flow metrics. Key fields: bytes, bytes_in, bytes_out, packets, chunks. Security use: Detect exfiltration, anomalies, and traffic spikes.
   - **bytes**: `bigint`
   - **bytes_in**: `bigint`
   - **bytes_missed**: `bigint`
@@ -2654,11 +4251,12 @@
   - **packets**: `bigint`
   - **packets_in**: `bigint`
   - **packets_out**: `bigint`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
-- **url**: `struct`
+- **type_name**: `string` — Event or finding type name derived from type_uid. Security use: normalize event categories for detection triage.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **url**: `struct` — Network traffic URL reference. Key fields: url_string. Security use: identify malicious destinations.
   - **url_string**: `string`
+- **_silver_table**: `string`
 
 ### Table: `process_activity`
 
@@ -2666,13 +4264,13 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Initiating entity for process activity, capturing user, app, and process context. Key fields: app_name, app_uid, process.cmd_line, process.pid, user.uid. Security use: attribute actions to identities and sessions.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -2708,17 +4306,73 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **device**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **device**: `struct` — Addressable host or endpoint identity and posture attributes. Key fields: uid, hostname, ip, domain, risk_score. Security use: detect risky or unmanaged endpoints.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -2742,18 +4396,18 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **exit_code**: `int`
-- **injection_type**: `string`
-- **injection_type_id**: `int`
-- **message**: `string`
-- **metadata**: `struct`
+- **exit_code**: `int` — The exit code reported by a process when it terminates. The convention is that zero indicates success and any non-zero exit code indicates that some error occurred
+- **injection_type**: `string` — The process injection method, normalized to the caption of the injection_type_id value. In the case of `Other`, it is defined by the event source
+- **injection_type_id**: `int` — Normalized identifier for the process injection method used in an activity. Security use: detect suspicious injection techniques.
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata envelope for lifecycle timing, logging context, and product identity. Key fields: uid, correlation_uid, original_time, processed_time, product.name. Security use: event tracing and integrity checks.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -2772,21 +4426,54 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **module**: `struct`
+- **module**: `struct` — Injected module load attributes and file identity for the actor process. Key fields: base_address, start_address, load_type_id, file.path, file.name. Security use: detect suspicious injections and memory module loads.
   - **base_address**: `string`
   - **file**: `struct`
     - **name**: `string`
     - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
   - **function_name**: `string`
   - **load_type**: `string`
   - **load_type_id**: `int`
   - **start_address**: `string`
   - **type**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **process**: `struct`
+- **process**: `struct` — Originating process context for the activity, with identifiers and user session attributes. Key fields: pid, cpid, cmd_line, session.*, user.uid. Security use: trace execution chains and session provenance.
   - **cmd_line**: `string`
   - **cpid**: `string`
   - **name**: `string`
@@ -2811,19 +4498,60 @@
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **raw_data**: `variant`
-- **requested_permissions**: `int`
-- **severity**: `string`
-- **severity_id**: `int`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **file**: `struct`
+    - **name**: `string`
+    - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
+  - **parent_process**: `variant`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **requested_permissions**: `int` — Requested process permissions mask, expressed as a permissions bitmask for the operation. Security use: detect overprivileged or anomalous access requests.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Process type name label for categorizing executed processes. Security use: triage process behavior.
+- **type_uid**: `bigint` — The resulting process object when the activity was allowed and successful.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `scheduled_job_activity`
 
@@ -2831,13 +4559,13 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Job activity initiator identity and context. Key fields: user.uid, user.name, app_name, process.pid, authorizations.decision. Security use: attribute actions to principals, detect unauthorized scheduling.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -2873,17 +4601,73 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **device**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **device**: `struct` — Target device identity and posture details for scheduled job activity. Key fields: uid, name, hostname, ip, is_managed. Security use: asset identification and risk triage.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -2907,20 +4691,53 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **job**: `struct`
+- **job**: `struct` — Scheduled job definition and execution metadata for the event. Key fields: name, cmd_line, next_run_time, run_state, user.name. Security use: detect suspicious scheduled tasks.
   - **cmd_line**: `string`
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **file**: `struct`
     - **name**: `string`
     - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
   - **last_run_time**: `timestamp`
   - **name**: `string`
   - **next_run_time**: `timestamp`
@@ -2932,8 +4749,11 @@
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata context for scheduled job activity records. Key fields: uid, correlation_uid, event_code, processed_time, product.name. Security use: trace event lineage and integrity across systems.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -2952,27 +4772,28 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **risk_details**: `string`
-- **risk_level**: `string`
-- **risk_level_id**: `int`
-- **risk_score**: `int`
-- **severity**: `string`
-- **severity_id**: `int`
-- **start_time**: `timestamp`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **risk_details**: `string` — Risk characterization for the finding, capturing severity and contextual rationale. Security use: prioritize triage and escalation decisions.
+- **risk_level**: `string` — The risk level, normalized to the caption of the risk_level_id value
+- **risk_level_id**: `int` — Normalized risk level identifier for the event. Security use: prioritize alert triage.
+- **risk_score**: `int` — Event source reported risk score value for the activity. Security use: prioritize investigation triage.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **start_time**: `timestamp` — The start time of a time period, or the time of the least recent event included in the aggregate event
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type label mapped from type_uid. Security use: human-readable classification for triage and filtering.
+- **type_uid**: `bigint` — The resulting job object when the activity was allowed and successful.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `script_activity`
 
@@ -2980,13 +4801,13 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Initiating actor context for process activity attribution. Key fields: process.pid, process.cmd_line, process.user.uid, user.uid, authorizations.decision. Security use: attribute actions to users or processes.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -3022,17 +4843,73 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **device**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **device**: `struct` — Addressable endpoint identity and posture metadata. Key fields: uid, hostname, ip, domain, risk_score. Security use: device attribution for script execution events.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -3056,15 +4933,15 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata and logging context for this record. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: incident timeline and log provenance checks.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -3083,15 +4960,48 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **script**: `struct`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **script**: `struct` — Target script descriptor for executed or referenced code, file-backed or file-less. Key fields: uid, name, type_id, file.path, script_content.value. Security use: detect suspicious scripts and verify integrity.
   - **file**: `struct`
     - **name**: `string`
     - **path**: `string`
+    - **accessor**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **creator**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **hashes**: `array<struct>`
+      - **algorithm**: `string`
+      - **algorithm_id**: `int`
+      - **value**: `string`
+    - **owner**: `struct`
+      - **has_mfa**: `boolean`
+      - **name**: `string`
+      - **type**: `string`
+      - **type_id**: `int`
+      - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **url**: `struct`
+      - **url_string**: `string`
   - **hashes**: `array<struct>`
     - **algorithm**: `string`
     - **algorithm_id**: `int`
@@ -3100,22 +5010,23 @@
   - **parent_uid**: `string`
   - **script_content**: `struct`
     - **is_truncated**: `boolean`
-    - **untruncated_size**: `int`
+    - **untruncated_size**: `bigint`
     - **value**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Script type name label for script activity classification and normalization. Security use: detect suspicious script execution patterns.
+- **type_uid**: `bigint` — The resulting script object when the activity was allowed and successful.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
 
 ### Table: `ssh_activity`
 
@@ -3123,19 +5034,19 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **app_name**: `string`
-- **auth_type**: `string`
-- **auth_type_id**: `int`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **connection_info**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **app_name**: `string` — The name of the application that initiated the DHCP connection
+- **auth_type**: `string` — The SSH authentication type, normalized to the caption of `auth_type_id`. In the case of `Other`, it is defined by the event source
+- **auth_type_id**: `int` — Normalized SSH authentication type identifier for login events. Security use: detect unusual authentication methods.
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **connection_info**: `struct` — Network connection metadata for SSH traffic events. Key fields: uid, direction, protocol_name, protocol_num, flag_history. Security use: detect anomalous protocols, directions, and suspicious flag patterns.
   - **direction**: `string`
   - **direction_id**: `int`
   - **flag_history**: `string`
@@ -3144,9 +5055,9 @@
   - **protocol_ver**: `string`
   - **protocol_ver_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **dst_endpoint**: `struct`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **dst_endpoint**: `struct` — Destination server endpoint descriptor for SSH responder. Key fields: ip, port, hostname, domain, uid. Security use: detect targeting and anomalous destination services.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -3169,16 +5080,49 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>`
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **file**: `struct`
+- **file**: `struct` — SSH target file descriptor for activity context. Key fields: name, path. Security use: trace sensitive file access via SSH.
   - **name**: `string`
   - **path**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+  - **accessor**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **creator**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **hashes**: `array<struct>`
+    - **algorithm**: `string`
+    - **algorithm_id**: `int`
+    - **value**: `string`
+  - **owner**: `struct`
+    - **has_mfa**: `boolean`
+    - **name**: `string`
+    - **type**: `string`
+    - **type_id**: `int`
+    - **uid**: `string`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **url**: `struct`
+    - **url_string**: `string`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata envelope for timestamps, provenance, and identifiers. Key fields: uid, correlation_uid, logged_time, product.name, tags. Security use: triage and incident timeline integrity.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -3197,15 +5141,15 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **protocol_ver**: `string`
-- **raw_data**: `variant`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **protocol_ver**: `string` — Secure Shell protocol version identifier for the observed SSH activity. Security use: validate client and server protocol compatibility.
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — SSH client endpoint identity and network origin metadata. Key fields: ip, port, hostname, domain, uid. Security use: attribute SSH sources for access control investigations.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -3228,15 +5172,28 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type label mapped from type_uid. Security use: filtering and triage.
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **_silver_table**: `string`
+
+### Table: `test_xml_gold`
+
+**URL:** https://schema.ocsf.io/1.5.0/classes/test_xml_gold
+
+#### Table Schema
+
+- **lw_id**: `string`
 - **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
+- **clientIP**: `string`
+- **raw_data**: `variant`
+- **_silver_table**: `string`
 
 ### Table: `user_access`
 
@@ -3244,13 +5201,13 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **actor**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The normalized identifier of the activity that triggered the event.
+- **activity_name**: `string` — The event activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity source actor identity and execution context. Key fields: user.uid, user.name, app_uid, idp.protocol_name, process.session.*. Security use: attribution, access validation, and anomaly triage.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -3286,13 +5243,69 @@
       - **type**: `string`
       - **type_id**: `int`
       - **uid**: `string`
+      - **account**: `struct`
+        - **name**: `string`
+        - **uid**: `string`
+    - **file**: `struct`
+      - **name**: `string`
+      - **path**: `string`
+      - **accessor**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **creator**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **hashes**: `array<struct>`
+        - **algorithm**: `string`
+        - **algorithm_id**: `int`
+        - **value**: `string`
+      - **owner**: `struct`
+        - **has_mfa**: `boolean`
+        - **name**: `string`
+        - **type**: `string`
+        - **type_id**: `int`
+        - **uid**: `string`
+        - **account**: `struct`
+          - **name**: `string`
+          - **uid**: `string`
+      - **url**: `struct`
+        - **url_string**: `string`
+    - **parent_process**: `variant`
   - **user**: `struct`
     - **has_mfa**: `boolean`
     - **name**: `string`
     - **type**: `string`
     - **type_id**: `int`
     - **uid**: `string`
-- **api**: `struct`
+    - **account**: `struct`
+      - **name**: `string`
+      - **uid**: `string`
+  - **session**: `struct`
+    - **created_time**: `timestamp`
+    - **credential_uid**: `string`
+    - **expiration_reason**: `string`
+    - **expiration_time**: `timestamp`
+    - **is_mfa**: `boolean`
+    - **is_remote**: `boolean`
+    - **is_vpn**: `boolean`
+    - **issuer**: `string`
+    - **terminal**: `string`
+    - **uid**: `string`
+    - **uid_alt**: `string`
+    - **uuid**: `string`
+- **api**: `struct` — API call context with operation, request identifiers, and response outcomes. Key fields: operation, request.uid, request.data, response.code, response.error. Security use: detect failures and suspicious API activity.
   - **operation**: `string`
   - **request**: `struct`
     - **data**: `variant`
@@ -3302,11 +5315,14 @@
     - **data**: `variant`
     - **error**: `string`
     - **message**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **cloud**: `struct`
+  - **service**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The class of the event.
+- **cloud**: `struct` — Cloud account context for access events. Key fields: account.uid, account.name, provider, region, zone. Security use: attribute access to tenant and region.
   - **account**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -3315,15 +5331,15 @@
   - **provider**: `string`
   - **region**: `string`
   - **zone**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event metadata for user access records, tracking provenance and timing. Key fields: uid, correlation_uid, logged_time, modified_time, product.*. Security use: triage, audit timelines, and provenance checks.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -3342,20 +5358,20 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **privileges**: `array<string>`
-- **raw_data**: `variant`
-- **resource**: `struct`
+- **privileges**: `array<string>` — User privilege assignments for access control decisions. Security use: authorize user actions.
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **resource**: `struct` — Accessible resource identifier and network locator. Key fields: uid, name, hostname, ip. Security use: entitlement scoping and access review.
   - **hostname**: `string`
   - **ip**: `string`
   - **name**: `string`
   - **uid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **src_endpoint**: `struct`
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **src_endpoint**: `struct` — Privilege grant source endpoint identity and network context. Key fields: hostname, ip, port, domain, uid. Security use: trace privilege origins and suspicious access sources.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -3378,21 +5394,25 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **type_uid**: `bigint`
-- **unmapped**: `variant`
-- **user**: `struct`
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type name aligned to type_uid for normalization. Security use: classify access activity.
+- **type_uid**: `bigint` — The type of the event.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **user**: `struct` — Group membership change subject user identity and attributes. Key fields: uid, name, type_id, type, has_mfa. Security use: track access changes and MFA posture.
   - **has_mfa**: `boolean`
   - **name**: `string`
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
+  - **account**: `struct`
+    - **name**: `string`
+    - **uid**: `string`
+- **_silver_table**: `string`
 
 ### Table: `vulnerability_finding`
 
@@ -3400,17 +5420,17 @@
 
 #### Table Schema
 
-- **dasl_id**: `string` — Unique ID generated and maintained by Antimatter for data lineage from ingestion throughout all medallion layers.
-- **action**: `string`
-- **action_id**: `int`
-- **activity**: `string`
-- **activity_id**: `int`
-- **activity_name**: `string`
-- **category_name**: `string`
-- **category_uid**: `int`
-- **class_name**: `string`
-- **class_uid**: `int`
-- **device**: `struct`
+- **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity**: `string` — The normalized caption of `activity_id` or the source specific value.
+- **activity_id**: `int` — The activity identifier of the vulnerability finding.
+- **activity_name**: `string` — The finding activity name, as defined by the activity_id.
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **device**: `struct` — Addressable asset identity and context for vulnerability findings. Key fields: uid, hostname, ip, domain, risk_score. Security use: asset attribution and triage.
   - **created_time**: `timestamp`
   - **desc**: `string`
   - **domain**: `string`
@@ -3434,15 +5454,15 @@
   - **type**: `string`
   - **type_id**: `int`
   - **uid**: `string`
-- **disposition**: `string`
-- **disposition_id**: `int`
-- **end_time**: `timestamp`
-- **enrichments**: `array<struct>`
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations
+- **end_time**: `timestamp` — The time of the most recent event included in the finding
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **finding_info**: `struct`
+- **finding_info**: `struct` — Finding metadata and context for vulnerability records. Key fields: uid, title, desc, analytic.uid, attacks.technique.uid. Security use: prioritize remediation and map to ATT&CK.
   - **analytic**: `struct`
     - **name**: `string`
     - **uid**: `string`
@@ -3479,8 +5499,8 @@
   - **src_url**: `string`
   - **title**: `string`
   - **uid**: `string`
-- **message**: `string`
-- **metadata**: `struct`
+- **message**: `string` — The description of the event/finding, as defined by the source
+- **metadata**: `struct` — Event and finding metadata for time, source, and identifiers. Key fields: uid, correlation_uid, logged_time, modified_time, product.name. Security use: triage provenance and trace enrichment history.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -3499,28 +5519,28 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>`
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant`
-- **resources**: `array<struct>`
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
+- **resources**: `array<struct>` — Affected resource identifiers for vulnerability findings. Key fields: uid, name, hostname, ip. Security use: asset identification and scoping.
   - **hostname**: `string`
   - **ip**: `string`
   - **name**: `string`
   - **uid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **start_time**: `timestamp`
-- **status**: `string`
-- **status_code**: `string`
-- **status_detail**: `string`
-- **status_id**: `int`
-- **time**: `timestamp`
-- **timezone_offset**: `int`
-- **type_name**: `string`
-- **unmapped**: `variant`
-- **vulnerabilities**: `array<struct>`
+- **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **start_time**: `timestamp` — The time of the least recent event included in the finding
+- **status**: `string` — The normalized status of the Finding set by the consumer normalized to the caption of the status_id value. In the case of `Other`, it is defined by the source.
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The status ID of the finding.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — Event or finding type name aligned to type_uid for normalization. Security use: classify vulnerability findings.
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
+- **vulnerabilities**: `array<struct>` — Vulnerability details associated with a security finding. Key fields: cve.uid, cve.created_time, cve.cvss.base_score, cve.cvss.severity, first_seen_time. Security use: prioritize patching and exploit response.
   - **cve**: `struct`
     - **created_time**: `timestamp`
     - **cvss**: `array<struct>`
@@ -3535,3 +5555,4 @@
   - **fix_available**: `boolean`
   - **is_exploit_available**: `boolean`
   - **is_fix_available**: `boolean`
+- **_silver_table**: `string`
