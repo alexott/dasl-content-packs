@@ -249,12 +249,12 @@ gold:
       #   expr: try_variant_get(data, '$.FileIdentifier', 'string')
       # - name: file.attributes
       #   expr: try_variant_get(data, '$.UnixMode', 'int')
-      # - name: file.hashes
-      #   expr: |
-      #     CASE
-      #       WHEN try_variant_get(data, '$.SHA256HashData', 'string') IS NOT NULL THEN
-      #         array(named_struct('algorithm_id', cast('3' as int), 'algorithm', 'SHA-256', 'value', try_variant_get(data, '$.SHA256HashData', 'string')))
-      #     END
+      - name: file.hashes
+        expr: |
+          CASE
+            WHEN try_variant_get(data, '$.SHA256HashData', 'string') IS NOT NULL THEN
+              array(named_struct('algorithm_id', cast('3' as int), 'algorithm', 'SHA-256', 'value', try_variant_get(data, '$.SHA256HashData', 'string')))
+          END
       # - name: file.size
       #   expr: try_variant_get(data, '$.Size', 'long')
   - name: authentication
@@ -407,6 +407,8 @@ gold:
             try_variant_get(data, '$.BundleID', 'string'), 
             regexp_extract(try_variant_get(data, '$.ImageFileName', 'string'), '^.*[/\\\\\\\\\\\\\\\\](.+?)$', 1)
           )
+      - name: raw_data
+        from: data
   - name: dns_activity
     input: crowdstrike
     filter: |
