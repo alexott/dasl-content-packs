@@ -1,4 +1,4 @@
-## Schema: `reyden_test.lakewatch_gold`
+## Schema: ``lw-prod-catalog`.gold`
 
 ### Table: `account_change`
 
@@ -730,18 +730,6 @@
     - **uid**: `string`
 - **_silver_table**: `string`
 
-### Table: `csv_test_d_gold`
-
-**URL:** https://schema.ocsf.io/1.5.0/classes/csv_test_d_gold
-
-#### Table Schema
-
-- **lw_id**: `string`
-- **time**: `timestamp`
-- **data**: `variant`
-- **raw_data**: `variant`
-- **_silver_table**: `string`
-
 ### Table: `data_security_finding`
 
 **URL:** https://schema.ocsf.io/1.5.0/classes/data_security_finding
@@ -1146,6 +1134,7 @@
 - **type_name**: `string` — Finding type name derived from type_uid, used to label event or finding class. Security use: triage and alert categorization.
 - **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
 - **_silver_table**: `string`
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
 
 ### Table: `datastore_activity`
 
@@ -3205,17 +3194,15 @@
 
 **URL:** https://schema.ocsf.io/1.5.0/classes/file_hosting_activity
 
-**Description:** File Hosting Activity events report the actions taken by file management applications, including file sharing servers like Sharepoint and services such as Box, MS OneDrive, Google Drive, or network file share services.
-
 #### Table Schema
 
 - **lw_id**: `string` — Unique ID generated and maintained by Lakewatch for data lineage from ingestion throughout all medallion layers.
-- **_silver_table**: `string` — The name of the silver table that this row was generated from.
-- **action**: `string` — This field must exactly match the caption associated with the `action_id` integer, as defined in the OCSF action_id enum, unless the value is 99, in which case set the resulting value to the known action discovered during the action_id evaluation.
-- **action_id**: `int` — This field represents the specific outcome of the logged event. First, check for explicit action or outcome fields with names like `action`, `outcome`, `result`, `disposition`, or `status`. Match values (case-insensitive): `allow`, `permit`, `accept`, `grant`, or `success` maps to action_id=1 (Allowed); `deny`, `block`, `reject`, `drop`, or `fail` maps to action_id=2 (Denied). If no explicit field exists, check if the log source is only reporting single outcomes (e.g., a firewall configured to `log only denies` means all logged events show denied, and are therefore action_id=2). You can also infer from context: HTTP status codes 2xx/3xx indicate action_id=1, while 4xx/5xx indicate action_id=2; authentication events with `Login successful` are action_id=1, while `Login failed` are action_id=2; in AWS CloudTrail, absence of `errorCode` field indicates action_id=1. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If you can categorically identify the action that took place, but it is not represented by an enum caption either exactly or semantically then treat it as medium confidence and assign the resulting enum integer as 99 (Other). If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
-- **activity_id**: `int` — This is an integer representation of the specific activity or event that took place during the file hosting activity event in the record. Determine the correct value by comparing the record text with the enum captions. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match of the activity is found but it is not represented in the current enum list, treat it as medium confidence and set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
-- **activity_name**: `string` — The event activity name, as defined by the activity_id.
-- **actor**: `struct` — The actor object describes details about the user/role/process that was the source of the activity. Note that this is not the threat actor of a campaign but may be part of a campaign.
+- **_silver_table**: `string` — The name of the silver table this event was sourced from.
+- **action**: `string` — The normalized caption of `action_id` or the source specific action.
+- **action_id**: `int` — The normalized action taken by a control or other policy-based system leading to an outcome or disposition.
+- **activity_id**: `int` — The normalized identifier of the file hosting activity that triggered the event.
+- **activity_name**: `string` — The file hosting activity name, as defined by the activity_id.
+- **actor**: `struct` — Activity initiator identity context for user, app, or process. uid, user.name, app_uid, process.pid, idp.name.
   - **app_name**: `string`
   - **app_uid**: `string`
   - **authorizations**: `array<struct>`
@@ -3313,11 +3300,11 @@
     - **uid**: `string`
     - **uid_alt**: `string`
     - **uuid**: `string`
-- **category_name**: `string` — This field must exactly match the caption associated with the `category_uid` integer, as defined in the OCSF category_uid enum.
-- **category_uid**: `int` — The category unique identifier of the event. For file hosting activity, the category_uid is always 6.
-- **class_name**: `string` — This field must exactly match the caption associated with the `class_uid` integer, as defined in the OCSF class_uid enum.
-- **class_uid**: `int` — This field captures a unique identifier for the class of the event. For file hosting activity, the class_uid is always 6006.
-- **connection_info**: `struct` — The network connection information associated with the file hosting activity, including details about the connection used to access the file hosting service.
+- **category_name**: `string` — The event category name, as defined by category_uid value.
+- **category_uid**: `int` — The category unique identifier of the event.
+- **class_name**: `string` — The event class name, as defined by class_uid value.
+- **class_uid**: `int` — The unique identifier of a class. A class describes the attributes available in an event.
+- **connection_info**: `struct` — Network connection metadata for the file hosting activity, including protocol and direction details.
   - **direction**: `string`
   - **direction_id**: `int`
   - **flag_history**: `string`
@@ -3326,9 +3313,9 @@
   - **protocol_ver**: `string`
   - **protocol_ver_id**: `int`
   - **uid**: `string`
-- **disposition**: `string` — This field must exactly match the caption associated with the `disposition_id` integer, as defined in the OCSF disposition_id enum, unless the value is 99, in which case set the resulting value to the known disposition discovered during the disposition_id evaluation.
-- **disposition_id**: `int` — This is an integer representation of the disposition as defined by a security control. Map this field when either the OCSF event class is a `finding` or when a record is the result of a third party system, that has made a determination about a specific event. For instance, if the record demonstrates an anti-virus outcome of `malicious` against a specific process, then attempt to match the outcome with a disposition_id. To determined the correct enum integer value, use the enum caption and/or description and scan the record for either an explicit match (case insensitive), or an implicit match based on the record type, `result`, `outcome` or similar. If a record demonstrates a disposition outcome,  and the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to. Records that do not exhibit any disposition outcome should be set to 0.
-- **dst_endpoint**: `struct` — This field represents the network endpoint that received or responded to the file hosting activity. If available, use the data dictionary from the source vendor to determine which fields are relevant to populate in the dst_endpoint sub-fields. Values can typically be sourced from vendor fields like `destinationHostname`, `RemoteHostname`, or `addr`. Cloud logs may report fields like `resourceName`, `instance_name`, `dst_ip` or `dst_address`. Map the sub-fields relevant to the event class, leaving other sub-fields empty when no match is available.
+- **disposition**: `string` — The disposition name, normalized to the caption of the disposition_id value. In the case of `Other`, it is defined by the event source.
+- **disposition_id**: `int` — Describes the outcome or action taken by a security control, such as access control checks, malware detections or various types of policy violations.
+- **dst_endpoint**: `struct` — The destination network endpoint that received or responded to the file hosting activity.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -3351,13 +3338,13 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **enrichments**: `array<struct>` — This field contains any additional data or context related to the event, which is often provided by external systems or data enrichment tools. It can be mapped from vendor fields like `additional_info`, `context_data`, or `enriched_data`. This field is optional and of array type. For example, it might include threat intelligence data related to an IP address involved in the event.
+- **enrichments**: `array<struct>` — External enrichment records for event attributes; key fields: name, value, data, desc. Security use: add context for investigations.
   - **data**: `variant`
   - **desc**: `string`
   - **name**: `string`
   - **value**: `string`
-- **expiration_time**: `timestamp` — The expiration time associated with a shared file or link. This is typically mapped from vendor fields like `expiration_time`, `link_expiry`, or `share_expiration`. The resultant timestamp should be formatted in ISO 8601 format.
-- **file**: `struct` — The file that is the target of the file hosting activity. This is typically mapped from vendor fields like `file_name`, `object_name`, `item_name`, or `resource_name`. The file object should contain at minimum the file name.
+- **expiration_time**: `timestamp` — Expiration timestamp for a shared file link or access grant.
+- **file**: `struct` — The target file that is the subject of the file hosting activity, including name and path.
   - **name**: `string`
   - **path**: `string`
   - **accessor**: `struct`
@@ -3393,7 +3380,7 @@
       - **uid**: `string`
   - **url**: `struct`
     - **url_string**: `string`
-- **file_result**: `struct` — The resulting file after the file hosting activity, such as after a rename or copy operation. This is the new state of the file after the action was performed.
+- **file_result**: `struct` — Resulting file state after the hosting activity, such as after a rename or copy.
   - **name**: `string`
   - **path**: `string`
   - **accessor**: `struct`
@@ -3429,8 +3416,8 @@
       - **uid**: `string`
   - **url**: `struct`
     - **url_string**: `string`
-- **message**: `string` — Contains a human-readable description of the event, including key details. This field is typically populated from vendor fields like `description`, `log_message`, `message` or `event_message`. This field is recommended and is of string type. For example, a message might read `Firewall rule triggered: outgoing traffic to port 22 blocked`.
-- **metadata**: `struct` — The metadata field holds information about the event record itself. It captures the current event type that is being mapped, processing time, source and sourcetype of the log source amongst other details.
+- **message**: `string` — The description of the event/finding, as defined by the source.
+- **metadata**: `struct` — Event metadata capturing the product, timing, and processing identifiers for the file hosting activity.
   - **correlation_uid**: `string`
   - **event_code**: `string`
   - **log_level**: `string`
@@ -3449,17 +3436,17 @@
   - **tenant_uid**: `string`
   - **uid**: `string`
   - **version**: `string`
-- **observables**: `array<struct>` — The observables associated with the event or a finding.
+- **observables**: `array<struct>` — Event observables and extracted indicators; key fields: name, type, value. Security use: drive detection and triage.
   - **name**: `string`
   - **type**: `string`
   - **value**: `string`
-- **raw_data**: `variant` — The raw_data field is designed to hold the raw, unaltered data from the event log. This field should be populated from the existing `data` field if available. Leave empty otherwise.
+- **raw_data**: `variant` — Raw source event payload before normalization. Security use: preserve evidence for forensics.
 - **severity**: `string` — The event/finding severity, normalized to the caption of the severity_id value. In the case of `Other`, it is defined by the source.
-- **severity_id**: `int` — The severity identifier of the incident. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
-- **share**: `string` — The name of the file share, such as a network share or cloud folder being accessed.
+- **severity_id**: `int` — The normalized identifier of the event/finding severity. The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+- **share**: `string` — Name of the network file share or cloud folder being accessed.
 - **share_type**: `string` — The share type, normalized to the caption of the share_type_id value. In the case of `Other`, it is defined by the event source.
-- **share_type_id**: `int` — The type identifier of the file share. If the record contains an explicit, case-insensitive match of a caption, assign the corresponding enum integer.
-- **src_endpoint**: `struct` — This field represents the network initiator or client that instigates the file hosting activity. If available, use the data dictionary from the source vendor to determine which fields are relevant to populate in the src_endpoint sub-fields. Values are typically sourced from vendor fields like `workstation`, `device`, `device_name`, `device_hostname`, `computer`, or `client`. Map the sub-fields relevant to the event class, leaving other sub-fields empty when no match is available.
+- **share_type_id**: `int` — Normalized share type identifier distinguishing file, pipe, and print shares.
+- **src_endpoint**: `struct` — The source network endpoint or client that initiated the file hosting activity.
   - **domain**: `string`
   - **hostname**: `string`
   - **instance_uid**: `string`
@@ -3482,26 +3469,15 @@
   - **mac**: `string`
   - **vpc_uid**: `string`
   - **zone**: `string`
-- **status**: `string` — This field must exactly match the caption associated with the `status_id` integer, as defined in the OCSF status_id enum, unless the value is 99, in which case set the resulting value to the known status discovered during the status_id evaluation.
-- **status_code**: `string` — The status_code field stores a coded representation of the event`s status. Vendor fields like `status_code` or `status`, `errorCode` can be used for mapping. Only populate this field if a status code is explicitly available in the vendor log. If the status code is not available, then do not set it at all.
-- **status_detail**: `string` — The status_detail field provides additional information or sub-status associated with the event, offering further context to the `status_code` field. This field can be mapped from vendor fields such as `status_detail` or `event_substatus`. If this detailed status is not available, then do not set it at all.
-- **status_id**: `int` — The status_id integer field is used to represent a coded value for the outcome or status of the event. It could be typically mapped from vendor fields like `status_code`, `status_id`, or `status`. If available, the vendor data dictionary may be required to translate a status code or id into its related OCSF enum caption equivalent, before finally setting the resulting value to the corresponding OCSF status_id integer value. If the record contains an explicit, case-insensitive match of a caption, treat the match as high confidence and assign the corresponding enum integer. If an exact match the status if found but it is not represented in the current enum list, set the resulting value to 99. If the match is implied by meaning, synonym, or closely related wording, treat it as medium confidence and also assign the corresponding enum integer. If no clear or related wording appears, treat the case as low confidence and set the value to 0 (Unknown).
-- **time**: `timestamp` — The time field captures the exact timestamp when the event occurred. It is a required field and should be populated with a date-time string in ISO 8601 format. The resulting field should be a direct mapping from an existing timestamp field already called `time` in the given input data.
-- **timezone_offset**: `int` — This field is intended to capture the difference between the event timestamp and Coordinated Universal Time (UTC), typically derived from vendor fields such as `time_offset` or `utc_offset`. It is represented as a string, in the `+HH:MM` or `-HH:MM` format. For instance, `+05:30` corresponds to Indian Standard Time. While this field is not mandatory, its inclusion is recommended.
-- **type**: `string` — The event/finding type name, as defined by the type_uid.
-- **type_name**: `string` — This field must exactly match the caption associated with the `type_uid` integer, as defined in the OCSF type_uid enum, unless the value is 99, in which case set the resulting value to the known type discovered during the type_uid evaluation.
+- **status**: `string` — The event status, normalized to the caption of the status_id value. In the case of `Other`, it is defined by the event source
+- **status_code**: `string` — The event status code, as reported by the event source. For example, in a Windows Failed Authentication event, this would be the value of `Failure Code`, e.g. 0x18.
+- **status_detail**: `string` — The status detail contains additional information about the event/finding outcome.
+- **status_id**: `int` — The normalized identifier of the event status.
+- **time**: `timestamp` — The normalized event occurrence time or the finding creation time.
+- **timezone_offset**: `int` — The number of minutes that the reported event time is ahead or behind UTC, in the range -1,080 to +1,080.
+- **type_name**: `string` — The event or finding type name, aligned to the type_uid value for normalization.
 - **type_uid**: `bigint` — The event/finding type ID. It identifies the event`s semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
-- **unmapped**: `variant` — This databricks variant field serves as a container for any data from the upstream input that doesn`t correspond directly to a defined field. It should be computed with data or context not mapped to an OCSF schema field. Note that when creating a VARIANT type field in Databricks, specific syntax requirements apply. The field is optional, meaning it can be left empty if all data from the vendor logs was mapped to the appropriate OCSF event class fields.
-
-### Table: `fulltext_testing_100tb`
-
-**URL:** https://schema.ocsf.io/1.5.0/classes/fulltext_testing_100tb
-
-#### Table Schema
-
-- **id**: `bigint`
-- **text_a**: `string`
-- **text_b**: `string`
+- **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source.
 
 ### Table: `group_management`
 
@@ -4096,42 +4072,6 @@
   - **severity_id**: `int`
 - **verdict**: `string` — The incident verdict, normalized to the caption of the verdict_id value. In the case of `Other`, it is defined by the event source.
 - **verdict_id**: `int` — Normalized integer identifier classifying the incident verdict, such as true positive or false positive.
-
-### Table: `kernel_extension_activity`
-
-**URL:** https://schema.ocsf.io/1.5.0/classes/kernel_extension_activity
-
-#### Table Schema
-
-- **lw_id**: `string`
-- **time**: `timestamp`
-- **class_name**: `string`
-- **type_uid**: `bigint`
-- **category_name**: `string`
-- **metadata**: `struct`
-  - **product**: `struct`
-    - **vendor_name**: `string`
-    - **name**: `string`
-    - **version**: `string`
-  - **tenant_uid**: `string`
-  - **uid**: `string`
-- **severity**: `string`
-- **severity_id**: `int`
-- **class_uid**: `int`
-- **actor**: `struct`
-  - **process**: `struct`
-    - **tid**: `int`
-    - **pid**: `int`
-- **category_uid**: `int`
-- **raw_data**: `variant`
-- **activity_id**: `int`
-- **driver**: `struct`
-  - **file**: `struct`
-    - **path**: `string`
-    - **name**: `string`
-- **type_name**: `string`
-- **activity_name**: `string`
-- **_silver_table**: `string`
 
 ### Table: `network_activity`
 
@@ -5203,65 +5143,6 @@
 - **unmapped**: `variant` — The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source
 - **_silver_table**: `string`
 
-### Table: `sysmon_process_activity`
-
-**URL:** https://schema.ocsf.io/1.5.0/classes/sysmon_process_activity
-
-#### Table Schema
-
-- **lw_id**: `string`
-- **time**: `timestamp`
-- **type_uid**: `bigint`
-- **device_hostname**: `string`
-- **category_name**: `string`
-- **metadata_version**: `string`
-- **severity**: `string`
-- **call_trace**: `string`
-- **metadata_product_vendor**: `string`
-- **process_integrity_level**: `string`
-- **actor_process_pid**: `string`
-- **process_pid**: `string`
-- **process_session_id**: `string`
-- **process_logon_id**: `string`
-- **process_current_directory**: `string`
-- **process_user_name**: `string`
-- **raw_event_id**: `int`
-- **message**: `string`
-- **type_name**: `string`
-- **actor_process_uid**: `string`
-- **metadata_log_name**: `string`
-- **status**: `string`
-- **process_file_hashes**: `string`
-- **activity_name**: `string`
-- **actor_thread_id**: `string`
-- **class_name**: `string`
-- **status_id**: `int`
-- **_silver_table**: `string`
-- **actor_process_name**: `string`
-- **metadata_original_time**: `string`
-- **severity_id**: `int`
-- **process_name**: `string`
-- **device_os_name**: `string`
-- **process_cmd_line**: `string`
-- **class_uid**: `int`
-- **metadata_event_uid**: `string`
-- **access_mask**: `string`
-- **category_uid**: `int`
-- **process_file_description**: `string`
-- **process_file_original_name**: `string`
-- **raw_data**: `variant`
-- **process_uid**: `string`
-- **actor_process_file_path**: `string`
-- **process_logon_uid**: `string`
-- **metadata_product_name**: `string`
-- **activity_id**: `int`
-- **process_file_company**: `string`
-- **metadata_channel**: `string`
-- **actor_process_cmd_line**: `string`
-- **process_file_path**: `string`
-- **process_file_version**: `string`
-- **process_file_product**: `string`
-
 ### Table: `user_access`
 
 **URL:** https://schema.ocsf.io/1.5.0/classes/user_access
@@ -5623,3 +5504,4 @@
   - **is_exploit_available**: `boolean`
   - **is_fix_available**: `boolean`
 - **_silver_table**: `string`
+- **type_uid**: `bigint` — The event/finding type ID. It identifies the event semantics and structure. The value is calculated by the logging system as: class_uid * 100 + activity_id.
